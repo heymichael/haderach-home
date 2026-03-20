@@ -1,0 +1,24 @@
+---
+description: App repo boundaries and documentation-first guardrails
+alwaysApply: true
+---
+
+# App Boundary Rule
+
+This repository owns the Haderach homepage SPA and the shared UI design system (@haderach/shared-ui). It is integrated into the external platform control plane.
+
+- Keep strict separation of concerns:
+  - This repo owns the homepage app, shared UI components, CI patterns, and artifact publish contracts.
+  - Platform orchestration, promotion, and cross-app routing checks remain outside this repo.
+- Keep app logic and app tests in this repository; do not add platform orchestration logic here.
+- Keep naming kebab-case for repo/path conventions unless language-specific rules require otherwise.
+- Prefer explicit docs and small config contracts over heavy scripts or premature automation.
+- Use or update docs when behavior/contracts change:
+  - `README.md`
+  - `docs/architecture.md`
+- Preserve security/indexing defaults:
+  - default `noindex` / `nofollow`
+  - only allow indexing with explicit approval path documented
+- When adding new structure, keep it minimal and production-minded.
+- Follow task lifecycle and formatting rules defined in:
+  - `.cursor/rules/todo-conventions.mdc`

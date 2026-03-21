@@ -80,3 +80,14 @@ Weights available: 400 (regular), 500 (medium), 600 (semibold).
 - Platform chrome tokens: `packages/shared-ui/src/theme/index.css`
 - App tokens: `src/index.css` `@theme` block
 - Shared components: `packages/shared-ui/src/components/`
+
+## Maintenance
+
+This skill is duplicated across three repos. The **Token Architecture**, **Typography**, and **Rules** sections are shared; the **Tier 2** and **Color System** sections are app-specific.
+
+When changing shared sections (chrome tokens, typography, rules) in this file, propagate the same changes to:
+
+- `../stocks/.cursor/skills/brand-guidelines/SKILL.md`
+- `../card/.cursor/skills/brand-guidelines/SKILL.md`
+
+App-specific sections (Tier 2 tokens, Color System) only need updating in the repo they belong to.

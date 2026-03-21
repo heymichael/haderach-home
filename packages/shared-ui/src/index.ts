@@ -37,5 +37,43 @@ export {
   TooltipTrigger,
   TooltipContent,
 } from "./components/ui/tooltip.tsx"
+export { Separator } from "./components/ui/separator.tsx"
+export {
+  Sheet,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from "./components/ui/sheet.tsx"
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "./components/ui/sidebar.tsx"
+export { useIsMobile } from "./hooks/use-mobile.ts"
 export { GlobalNav } from "./components/GlobalNav.tsx"
 export type { GlobalNavProps, NavApp } from "./components/GlobalNav.tsx"

@@ -24,12 +24,16 @@ function buildNavProps(
         ...base,
         apps: state.apps as NavApp[],
         userEmail: state.user.email ?? undefined,
+        userPhotoURL: state.profile.photoURL,
+        userDisplayName: state.profile.displayName,
         onSignOut: handleSignOut,
       }
     case "no-access":
       return {
         ...base,
         userEmail: state.user.email ?? undefined,
+        userPhotoURL: state.profile.photoURL,
+        userDisplayName: state.profile.displayName,
         onSignOut: handleSignOut,
       }
     case "signed-out":
@@ -96,13 +100,6 @@ function App() {
           </div>
         )}
 
-        <div className="flex-1" />
-        <img
-          className="w-[min(70vw,760px)] h-auto"
-          src="/assets/landing/logo.svg"
-          alt="Haderach"
-        />
-        <div className="flex-[2]" />
       </main>
     </div>
   )

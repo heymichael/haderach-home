@@ -22,3 +22,13 @@ This repository owns the Haderach homepage SPA and the shared UI design system (
 - When adding new structure, keep it minimal and production-minded.
 - Follow task lifecycle and formatting rules defined in:
   - `.cursor/rules/todo-conventions.mdc`
+
+## Dev Server Hygiene
+
+Before starting a local dev server, kill any existing Vite/Node dev servers across all workspace repos to avoid port conflicts and stale processes:
+
+```sh
+lsof -iTCP:5173 -iTCP:5174 -iTCP:5175 -iTCP:5176 -sTCP:LISTEN -t 2>/dev/null | xargs kill 2>/dev/null
+```
+
+Always kill dev servers when finishing a session or switching tasks.

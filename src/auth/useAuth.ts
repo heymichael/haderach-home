@@ -16,12 +16,17 @@ import {
   type AppEntry,
 } from "./roles.ts"
 
+export interface UserProfile {
+  displayName?: string
+  photoURL?: string
+}
+
 export type AuthState =
   | { status: "loading" }
   | { status: "init-error"; message: string }
   | { status: "signed-out" }
-  | { status: "authorized"; user: User; apps: AppEntry[] }
-  | { status: "no-access"; user: User }
+  | { status: "authorized"; user: User; apps: AppEntry[]; profile: UserProfile }
+  | { status: "no-access"; user: User; profile: UserProfile }
 
 function shouldBypassAuth(): boolean {
   if (import.meta.env.VITE_AUTH_BYPASS === "true") return true
@@ -33,18 +38,34 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
-async function fetchUserRoles(
+interface UserDoc {
+  roles: string[]
+  firstName: string
+  lastName: string
+}
+
+async function fetchUserDoc(
   db: import("firebase/firestore").Firestore,
-  email: string
-): Promise<string[]> {
+  email: string,
+): Promise<UserDoc> {
+  const empty: UserDoc = { roles: [], firstName: "", lastName: "" }
   try {
     const snap = await getDoc(doc(db, "users", normalizeEmail(email)))
-    if (!snap.exists()) return []
+    if (!snap.exists()) return empty
     const data = snap.data()
-    return Array.isArray(data.roles) ? data.roles : []
+    return {
+      roles: Array.isArray(data.roles) ? data.roles : [],
+      firstName: typeof data.first_name === "string" ? data.first_name : "",
+      lastName: typeof data.last_name === "string" ? data.last_name : "",
+    }
   } catch {
-    return []
+    return empty
   }
+}
+
+function buildDisplayName(firstName: string, lastName: string): string | undefined {
+  const full = [firstName, lastName].filter(Boolean).join(" ")
+  return full || undefined
 }
 
 export function useAuth() {
@@ -54,6 +75,7 @@ export function useAuth() {
         status: "authorized",
         user: { email: "dev@haderach.ai" } as User,
         apps: APP_CATALOG,
+        profile: { displayName: "Dev User" },
       }
     }
     return { status: "loading" }
@@ -98,24 +120,28 @@ export function useAuth() {
       }
 
       setState({ status: "loading" })
-      const roles = await fetchUserRoles(db, user.email ?? "")
-      const accessible = getAccessibleApps(roles)
+      const userDoc = await fetchUserDoc(db, user.email ?? "")
+      const profile: UserProfile = {
+        displayName: buildDisplayName(userDoc.firstName, userDoc.lastName),
+        photoURL: user.photoURL ?? undefined,
+      }
+      const accessible = getAccessibleApps(userDoc.roles)
 
       if (accessible.length === 0) {
-        setState({ status: "no-access", user })
+        setState({ status: "no-access", user, profile })
         return
       }
 
       const returnTo = getReturnTo()
       if (returnTo) {
         const targetAppId = returnToAppId(returnTo)
-        if (targetAppId && hasAppAccess(roles, targetAppId)) {
+        if (targetAppId && hasAppAccess(userDoc.roles, targetAppId)) {
           window.location.replace(returnTo)
           return
         }
       }
 
-      setState({ status: "authorized", user, apps: accessible })
+      setState({ status: "authorized", user, apps: accessible, profile })
     })
 
     return unsubscribe

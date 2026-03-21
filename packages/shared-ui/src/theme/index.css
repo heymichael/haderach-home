@@ -2,6 +2,20 @@
 @import "@fontsource/geist-sans/500.css";
 @import "@fontsource/geist-sans/600.css";
 
+@theme {
+  /* Platform chrome — global UI shell (nav, tooltips, dropdowns).
+     Consistent across all apps. App @theme blocks must not redefine these. */
+  --color-chrome-bg: oklch(1 0 0);
+  --color-chrome-border: oklch(0.922 0 0);
+  --color-chrome-text: oklch(0.439 0 0);
+  --color-chrome-text-strong: oklch(0.371 0 0);
+  --color-chrome-text-hover: oklch(0.145 0 0);
+  --color-chrome-text-muted: oklch(0.556 0 0);
+  --color-chrome-subtle: oklch(0.985 0 0);
+  --color-chrome-hover: oklch(0.97 0 0);
+  --color-chrome-avatar: oklch(0.55 0.08 185);
+}
+
 @layer base {
   button:not(:disabled),
   [role="button"]:not(:disabled) {

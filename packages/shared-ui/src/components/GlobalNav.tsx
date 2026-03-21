@@ -75,7 +75,7 @@ function UserAvatar({
           ) : (
             <div
               className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-full bg-[#3d8b90] text-[0.625rem] font-semibold leading-none text-white select-none",
+                "flex size-8 shrink-0 items-center justify-center rounded-full bg-chrome-avatar text-[0.625rem] font-semibold leading-none text-white select-none",
                 className,
               )}
               aria-label={label}
@@ -84,7 +84,7 @@ function UserAvatar({
             </div>
           )}
         </TooltipTrigger>
-        <TooltipContent side="left" className="bg-neutral-100 text-neutral-700">
+        <TooltipContent side="left" className="bg-chrome-hover text-chrome-text-strong">
           {displayName && <p className="font-bold">{displayName}</p>}
           <p>{email}</p>
         </TooltipContent>
@@ -100,18 +100,18 @@ function AppsDropdown({ apps, activeAppId }: { apps: NavApp[]; activeAppId?: str
         <Button
           variant="ghost"
           size="sm"
-          className="text-base text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-0"
+          className="text-base text-chrome-text hover:text-chrome-text-hover hover:bg-chrome-hover focus-visible:outline-none focus-visible:ring-0"
         >
           Applications
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[160px] border-neutral-200 shadow-lg">
+      <DropdownMenuContent align="start" className="min-w-[160px] bg-chrome-bg text-chrome-text-strong border-chrome-border shadow-lg">
         {apps.map((app) => (
           <DropdownMenuItem key={app.id} asChild>
             <a
               href={app.path}
               className={cn(
-                "cursor-pointer",
+                "cursor-pointer focus:bg-chrome-hover focus:text-chrome-text-hover",
                 app.id === activeAppId && "font-medium",
               )}
             >
@@ -140,7 +140,7 @@ export function GlobalNav({
   return (
     <header
       className={cn(
-        "grid grid-cols-[1fr_auto_1fr] items-center border-b border-neutral-200 bg-white px-6 py-3",
+        "grid grid-cols-[1fr_auto_1fr] items-center border-b border-chrome-border bg-chrome-bg px-6 py-3",
         className,
       )}
     >
@@ -165,7 +165,7 @@ export function GlobalNav({
             {onSignOut && (
               <button
                 onClick={onSignOut}
-                className="text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+                className="text-sm text-chrome-text-muted transition-colors hover:text-chrome-text-hover"
               >
                 Sign out
               </button>
@@ -177,7 +177,7 @@ export function GlobalNav({
               variant="outline"
               size="sm"
               onClick={onSignIn}
-              className="border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+              className="border-chrome-border text-chrome-text-strong hover:bg-chrome-subtle"
             >
               Sign in
             </Button>

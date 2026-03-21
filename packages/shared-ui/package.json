@@ -10,6 +10,7 @@
       "types": "./src/index.ts"
     },
     "./theme": {
+      "style": "./src/theme/index.css",
       "import": "./src/theme/index.css"
     }
   },
@@ -19,6 +20,7 @@
     "tailwindcss": "^4.0.0"
   },
   "dependencies": {
+    "@fontsource/geist-sans": "^5.2.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "radix-ui": "^1.0.0",

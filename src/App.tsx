@@ -1,12 +1,79 @@
-import { Button, Card, CardContent } from "@haderach/shared-ui"
-import { useAuth } from "./auth/useAuth.ts"
+import { GlobalNav, Card, CardContent, Button } from "@haderach/shared-ui"
+import type { NavApp } from "@haderach/shared-ui"
+import { useAuth, type AuthState } from "./auth/useAuth.ts"
+import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
+
+function buildNavProps(
+  state: AuthState,
+  handleSignIn: () => void,
+  handleSignOut: () => void,
+): React.ComponentProps<typeof GlobalNav> {
+  const logo = (
+    <img
+      className="h-12 w-auto"
+      src="/assets/landing/logo.svg"
+      alt="Haderach"
+    />
+  )
+
+  const base = { logo }
+
+  switch (state.status) {
+    case "authorized":
+      return {
+        ...base,
+        apps: state.apps as NavApp[],
+        userEmail: state.user.email ?? undefined,
+        onSignOut: handleSignOut,
+      }
+    case "no-access":
+      return {
+        ...base,
+        userEmail: state.user.email ?? undefined,
+        onSignOut: handleSignOut,
+      }
+    case "signed-out":
+      return { ...base, onSignIn: handleSignIn }
+    default:
+      return base
+  }
+}
+
+function ReturnToPrompt({ onSignIn }: { onSignIn: () => void }) {
+  const returnTo = getReturnTo()
+  if (!returnTo) return null
+
+  const appId = returnToAppId(returnTo)
+  const app = appId ? APP_CATALOG.find((a) => a.id === appId) : null
+  const label = app?.label ?? "your app"
+
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-8 py-6 text-center">
+      <p className="text-foreground-muted">
+        Sign in to continue to <strong className="text-foreground">{label}</strong>
+      </p>
+      <Button
+        variant="outline"
+        onClick={onSignIn}
+        className="border-border text-foreground hover:border-border-hover hover:bg-surface-hover"
+      >
+        Sign in with Google
+      </Button>
+    </div>
+  )
+}
 
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
 
+  const navProps = buildNavProps(state, handleSignIn, handleSignOut)
+  const showReturnToPrompt = state.status === "signed-out" && getReturnTo()
+
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background text-foreground">
-      <main className="flex flex-1 flex-col items-center w-full pt-8">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <GlobalNav {...navProps} />
+
+      <main className="flex flex-1 flex-col items-center w-full">
         {state.status === "loading" && (
           <div className="flex flex-1 items-center">
             <p className="text-foreground-muted">Loading&hellip;</p>
@@ -14,7 +81,7 @@ function App() {
         )}
 
         {state.status === "init-error" && (
-          <div className="flex flex-1 items-center">
+          <div className="flex items-center px-4 pt-12">
             <Card className="w-[min(560px,100%)] border-border bg-surface">
               <CardContent>
                 <p className="text-error">{state.message}</p>
@@ -23,63 +90,9 @@ function App() {
           </div>
         )}
 
-        {state.status === "signed-out" && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-            <p className="text-foreground-muted">
-              Sign in with your Google account to continue.
-            </p>
-            <Button
-              variant="outline"
-              onClick={handleSignIn}
-              className="border-border text-foreground hover:border-border-hover hover:bg-surface-hover"
-            >
-              Sign in with Google
-            </Button>
-          </div>
-        )}
-
-        {state.status === "authorized" && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8">
-            <nav className="flex gap-4">
-              {state.apps.map((app) => (
-                <a
-                  key={app.id}
-                  href={app.path}
-                  className="rounded-md border border-border px-5 py-2.5 text-lg tracking-wide text-foreground-muted transition-colors hover:border-border-hover hover:text-foreground"
-                >
-                  {app.label}
-                </a>
-              ))}
-            </nav>
-            <p className="text-sm text-foreground-muted">
-              Signed in as <strong>{state.user.email}</strong>
-            </p>
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="border-border text-foreground hover:border-border-hover hover:bg-surface-hover"
-            >
-              Sign out
-            </Button>
-          </div>
-        )}
-
-        {state.status === "no-access" && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-            <p>
-              You are signed in as <strong>{state.user.email}</strong>, but
-              your account does not have access to any applications.
-            </p>
-            <p className="text-foreground-muted">
-              Please contact your administrator to be granted access.
-            </p>
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="border-border text-foreground hover:border-border-hover hover:bg-surface-hover"
-            >
-              Sign out
-            </Button>
+        {showReturnToPrompt && (
+          <div className="pt-12">
+            <ReturnToPrompt onSignIn={handleSignIn} />
           </div>
         )}
 

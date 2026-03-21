@@ -8,6 +8,7 @@ import {
 import { doc, getDoc } from "firebase/firestore"
 import { initFirebase, googleProvider } from "./firebase.ts"
 import {
+  APP_CATALOG,
   getAccessibleApps,
   hasAppAccess,
   getReturnTo,
@@ -21,6 +22,12 @@ export type AuthState =
   | { status: "signed-out" }
   | { status: "authorized"; user: User; apps: AppEntry[] }
   | { status: "no-access"; user: User }
+
+function shouldBypassAuth(): boolean {
+  if (import.meta.env.VITE_AUTH_BYPASS === "true") return true
+  const params = new URLSearchParams(window.location.search)
+  return params.get("authBypass") === "1"
+}
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
@@ -41,13 +48,24 @@ async function fetchUserRoles(
 }
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({ status: "loading" })
+  const [state, setState] = useState<AuthState>(() => {
+    if (shouldBypassAuth()) {
+      return {
+        status: "authorized",
+        user: { email: "dev@haderach.ai" } as User,
+        apps: APP_CATALOG,
+      }
+    }
+    return { status: "loading" }
+  })
   const [firebaseReady, setFirebaseReady] = useState<{
     auth: import("firebase/auth").Auth
     db: import("firebase/firestore").Firestore
   } | null>(null)
 
   useEffect(() => {
+    if (shouldBypassAuth()) return
+
     let cancelled = false
 
     initFirebase()

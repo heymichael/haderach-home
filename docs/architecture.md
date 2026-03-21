@@ -28,12 +28,13 @@ haderach-home/
 │       │   ├── components/
 │       │   │   ├── ui/        # shadcn/ui primitives (Button, Input, etc.)
 │       │   │   └── GlobalNav.tsx
-│       │   ├── theme/         # Shared Tailwind theme tokens
+│       │   ├── lib/
+│       │   │   └── utils.ts
+│       │   ├── theme/
+│       │   │   └── index.css  # Shared Tailwind theme tokens
 │       │   └── index.ts       # Barrel export
-│       ├── components.json    # shadcn/ui config
 │       ├── package.json
-│       ├── tsconfig.json
-│       └── vite.config.ts     # Library mode build
+│       └── tsconfig.json
 ├── public/
 │   ├── assets/landing/logo.svg
 │   └── robots.txt

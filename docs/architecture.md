@@ -9,12 +9,15 @@
 ```text
 haderach-home/
 ├── .cursor/
-│   └── rules/
-│       ├── architecture-pointer.mdc
-│       ├── branch-safety-reminder.mdc
-│       ├── pr-conventions.mdc
-│       ├── repo-hygiene.mdc
-│       └── todo-conventions.mdc
+│   ├── rules/
+│   │   ├── architecture-pointer.mdc
+│   │   ├── branch-safety-reminder.mdc
+│   │   ├── pr-conventions.mdc
+│   │   ├── repo-hygiene.mdc
+│   │   └── todo-conventions.mdc
+│   └── skills/
+│       └── brand-guidelines/
+│           └── SKILL.md         # AI brand/token governance
 ├── .github/
 │   ├── pull_request_template.md
 │   └── workflows/
@@ -31,7 +34,7 @@ haderach-home/
 │       │   ├── lib/
 │       │   │   └── utils.ts
 │       │   ├── theme/
-│       │   │   └── index.css  # Shared Tailwind theme tokens
+│       │   │   └── index.css  # Platform chrome tokens + font imports
 │       │   └── index.ts       # Barrel export
 │       ├── package.json
 │       └── tsconfig.json
@@ -117,8 +120,14 @@ gs://<bucket>/home/versions/<commit-sha>/
 The package exports:
 
 - **shadcn/ui primitives**: Button, Input, Select, Tabs, Dialog, Card, etc.
-- **GlobalNav**: Cross-app navigation component.
-- **Theme tokens**: Shared Tailwind theme (colors, radii, fonts, shadows).
+- **GlobalNav**: Cross-app navigation component (uses platform chrome tokens exclusively).
+- **Platform chrome tokens**: `chrome-*` color tokens for the global UI shell (nav, tooltips, dropdowns). Consistent across all apps — app `@theme` blocks must not redefine these.
+- **Font imports**: Geist Sans 400/500/600 weights.
+
+Design tokens follow a two-tier architecture:
+
+1. **Platform chrome** (Tier 1): Defined in `shared-ui/src/theme/index.css`. Controls global UI shell styling. Identical across all apps.
+2. **App tokens** (Tier 2): Defined in each app's `src/index.css` `@theme` block. Controls app-specific colors and palette.
 
 Apps can opt out of shared components by building local components with raw Tailwind classes.
 

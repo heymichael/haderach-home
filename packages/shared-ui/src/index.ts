@@ -84,6 +84,8 @@ export {
   TableCell,
   TableCaption,
 } from "./components/ui/table.tsx"
+export { DataTable } from "./components/ui/data-table.tsx"
+export type { ColumnDef } from "@tanstack/react-table"
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs.tsx"
 export {
   ChartContainer,

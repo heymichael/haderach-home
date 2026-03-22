@@ -7,11 +7,13 @@ export interface AppEntry {
 export const APP_CATALOG: AppEntry[] = [
   { id: "card", label: "Card", path: "/card/" },
   { id: "stocks", label: "Stocks", path: "/stocks/" },
+  { id: "vendors", label: "Vendors", path: "/vendors/" },
 ]
 
 export const APP_GRANTING_ROLES: Record<string, string[]> = {
   card: ["admin", "member", "card_member"],
   stocks: ["admin", "member", "stocks_member"],
+  vendors: ["admin", "member", "vendors_member"],
 }
 
 export function hasAppAccess(userRoles: string[], appId: string): boolean {

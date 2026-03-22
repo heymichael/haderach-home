@@ -74,6 +74,27 @@ export {
   SidebarTrigger,
   useSidebar,
 } from "./components/ui/sidebar.tsx"
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "./components/ui/table.tsx"
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs.tsx"
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+  useChart,
+} from "./components/ui/chart.tsx"
+export type { ChartConfig } from "./components/ui/chart.tsx"
 export { useIsMobile } from "./hooks/use-mobile.ts"
 export { GlobalNav } from "./components/GlobalNav.tsx"
 export type { GlobalNavProps, NavApp } from "./components/GlobalNav.tsx"

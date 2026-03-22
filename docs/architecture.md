@@ -29,8 +29,10 @@ haderach-home/
 │   └── shared-ui/            # @haderach/shared-ui design system
 │       ├── src/
 │       │   ├── components/
-│       │   │   ├── ui/        # shadcn/ui primitives (Button, Input, etc.)
+│       │   │   ├── ui/        # shadcn/ui primitives + DataTable
 │       │   │   └── GlobalNav.tsx
+│       │   ├── hooks/
+│       │   │   └── use-mobile.ts
 │       │   ├── lib/
 │       │   │   └── utils.ts
 │       │   ├── theme/
@@ -119,7 +121,8 @@ gs://<bucket>/home/versions/<commit-sha>/
 
 The package exports:
 
-- **shadcn/ui primitives**: Button, Input, Select, Tabs, Dialog, Card, etc.
+- **shadcn/ui primitives**: Button, Input, Select, Tabs, Card, Table, Separator, Sheet, Sidebar, Tooltip, DropdownMenu, Chart.
+- **DataTable**: Generic sortable data table (`DataTable<TData>`) wrapping TanStack Table + Table primitives, with optional CSV download. Also re-exports the `ColumnDef` type.
 - **GlobalNav**: Cross-app navigation component (uses platform chrome tokens exclusively).
 - **Platform chrome tokens**: `chrome-*` color tokens for the global UI shell (nav, tooltips, dropdowns). Consistent across all apps — app `@theme` blocks must not redefine these.
 - **Font imports**: Geist Sans 400/500/600 weights.

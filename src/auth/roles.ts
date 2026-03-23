@@ -6,7 +6,7 @@ export interface AppEntry {
 
 export const APP_CATALOG: AppEntry[] = [
   { id: "card", label: "Card", path: "/card/" },
-  { id: "stocks", label: "Stocks", path: "/stocks/" },
+  { id: "stocks", label: "Commodities", path: "/stocks/" },
   { id: "vendors", label: "Vendors", path: "/vendors/" },
 ]
 

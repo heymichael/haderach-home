@@ -51,7 +51,7 @@ haderach-home/
 │   ├── auth/
 │   │   ├── firebase.ts
 │   │   ├── roles.ts
-│   │   └── useAuth.ts
+│   │   └── use-auth.ts
 │   ├── index.css
 │   ├── main.tsx
 │   └── vite-env.d.ts
@@ -59,6 +59,7 @@ haderach-home/
 ├── .gitignore
 ├── eslint.config.js
 ├── index.html
+├── package-lock.json
 ├── package.json
 ├── tsconfig.app.json
 ├── tsconfig.json

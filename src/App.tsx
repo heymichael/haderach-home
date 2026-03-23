@@ -1,6 +1,6 @@
 import { GlobalNav, Card, CardContent, Button } from "@haderach/shared-ui"
 import type { NavApp } from "@haderach/shared-ui"
-import { useAuth, type AuthState } from "./auth/useAuth.ts"
+import { useAuth, type AuthState } from "./auth/use-auth.ts"
 import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
 
 function buildNavProps(

@@ -28,6 +28,8 @@ haderach-home/
 ├── packages/
 │   └── shared-ui/            # @haderach/shared-ui design system
 │       ├── src/
+│       │   ├── auth/
+│       │   │   └── app-catalog.ts  # APP_CATALOG, APP_GRANTING_ROLES, RBAC helpers
 │       │   ├── components/
 │       │   │   ├── ui/        # shadcn/ui primitives + DataTable
 │       │   │   └── GlobalNav.tsx
@@ -125,6 +127,7 @@ The package exports:
 - **shadcn/ui primitives**: Button, Input, Select, Tabs, Card, Table, Separator, Sheet, Sidebar, Tooltip, DropdownMenu, Chart.
 - **DataTable**: Generic sortable data table (`DataTable<TData>`) wrapping TanStack Table + Table primitives, with optional CSV download. Also re-exports the `ColumnDef` type.
 - **GlobalNav**: Cross-app navigation component (uses platform chrome tokens exclusively).
+- **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`. Single source of truth for app entries and role-based access control — app repos import these instead of maintaining local copies.
 - **Platform chrome tokens**: `chrome-*` color tokens for the global UI shell (nav, tooltips, dropdowns). Consistent across all apps — app `@theme` blocks must not redefine these.
 - **Font imports**: Geist Sans 400/500/600 weights.
 

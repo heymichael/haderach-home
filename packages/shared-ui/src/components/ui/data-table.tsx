@@ -5,9 +5,10 @@ import {
   getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table"
-import type { ColumnDef, SortingState } from "@tanstack/react-table"
+import type { ColumnDef, SortingState, ColumnSizingState } from "@tanstack/react-table"
 import { Download } from "lucide-react"
 
+import { cn } from "../../lib/utils.ts"
 import { Button } from "./button.tsx"
 import {
   Table,
@@ -49,6 +50,7 @@ interface DataTableProps<TData> {
   data: TData[]
   csvFilename?: string
   emptyMessage?: string
+  pinFirstColumn?: boolean
 }
 
 export function DataTable<TData>({
@@ -56,8 +58,10 @@ export function DataTable<TData>({
   data,
   csvFilename,
   emptyMessage = "No results.",
+  pinFirstColumn = false,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
+  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({})
 
   const table = useReactTable({
     data,
@@ -65,7 +69,9 @@ export function DataTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
-    state: { sorting },
+    onColumnSizingChange: setColumnSizing,
+    columnResizeMode: "onChange",
+    state: { sorting, columnSizing },
   })
 
   return (
@@ -84,18 +90,36 @@ export function DataTable<TData>({
       )}
 
       <div className="rounded-lg border border-border flex-1 min-h-0 overflow-auto">
-        <Table>
+        <Table className="table-fixed" style={{ minWidth: table.getTotalSize() }}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="sticky top-0 z-10 bg-background">
+                {headerGroup.headers.map((header, idx) => (
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      "sticky top-0 z-10 bg-background relative group",
+                      pinFirstColumn && idx === 0 && "sticky left-0 z-20",
+                    )}
+                    style={{ width: header.getSize() }}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
+                    {header.column.getCanResize() && (
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        className={cn(
+                          "absolute top-0 -right-1 z-30 w-3 h-full cursor-col-resize select-none touch-none",
+                          "after:absolute after:top-0 after:left-1/2 after:-translate-x-1/2 after:w-0.5 after:h-full after:bg-transparent group-hover:after:bg-border",
+                          header.column.getIsResizing() && "after:!bg-primary",
+                        )}
+                      />
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -105,8 +129,14 @@ export function DataTable<TData>({
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        pinFirstColumn && idx === 0 && "sticky left-0 z-[5] bg-background",
+                      )}
+                      style={{ width: cell.column.getSize() }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

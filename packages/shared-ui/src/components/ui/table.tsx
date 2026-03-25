@@ -4,7 +4,7 @@ import { cn } from "../../lib/utils.ts"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div data-slot="table-container" className="relative w-full overflow-auto">
+    <div data-slot="table-container" className="relative w-full">
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
@@ -52,7 +52,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b transition-colors even:bg-muted/50 hover:bg-muted/50 data-[state=selected]:bg-muted",
         className
       )}
       {...props}

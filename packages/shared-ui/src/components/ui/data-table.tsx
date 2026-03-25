@@ -69,9 +69,9 @@ export function DataTable<TData>({
   })
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col flex-1 min-h-0 space-y-3">
       {csvFilename && (
-        <div className="flex justify-end">
+        <div className="flex justify-end shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -83,13 +83,13 @@ export function DataTable<TData>({
         </div>
       )}
 
-      <div className="rounded-lg border border-border">
+      <div className="rounded-lg border border-border flex-1 min-h-0 overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="sticky top-0 z-10 bg-background">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

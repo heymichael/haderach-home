@@ -98,7 +98,7 @@ export function DataTable<TData>({
                   <TableHead
                     key={header.id}
                     className={cn(
-                      "sticky top-0 z-10 bg-background relative group",
+                      "sticky top-0 z-10 bg-background group",
                       pinFirstColumn && idx === 0 && "sticky left-0 z-20",
                     )}
                     style={{ width: header.getSize() }}

@@ -100,4 +100,12 @@ export type { ChartConfig } from "./components/ui/chart.tsx"
 export { useIsMobile } from "./hooks/use-mobile.ts"
 export { GlobalNav } from "./components/GlobalNav.tsx"
 export type { GlobalNavProps, NavApp } from "./components/GlobalNav.tsx"
-export { APP_CATALOG, APP_GRANTING_ROLES, hasAppAccess, getAccessibleApps } from "./auth/app-catalog.ts"
+export {
+  APP_CATALOG,
+  APP_GRANTING_ROLES,
+  ADMIN_CATALOG,
+  ADMIN_GRANTING_ROLES,
+  hasAppAccess,
+  getAccessibleApps,
+  getAccessibleAdminApps,
+} from "./auth/app-catalog.ts"

@@ -9,7 +9,9 @@ import { doc, getDoc } from "firebase/firestore"
 import { initFirebase, googleProvider } from "./firebase.ts"
 import {
   APP_CATALOG,
+  ADMIN_CATALOG,
   getAccessibleApps,
+  getAccessibleAdminApps,
   hasAppAccess,
   getReturnTo,
   returnToAppId,
@@ -25,7 +27,7 @@ export type AuthState =
   | { status: "loading" }
   | { status: "init-error"; message: string }
   | { status: "signed-out" }
-  | { status: "authorized"; user: User; apps: AppEntry[]; profile: UserProfile }
+  | { status: "authorized"; user: User; apps: AppEntry[]; adminApps: AppEntry[]; profile: UserProfile }
   | { status: "no-access"; user: User; profile: UserProfile }
 
 function shouldBypassAuth(): boolean {
@@ -75,6 +77,7 @@ export function useAuth() {
         status: "authorized",
         user: { email: "dev@haderach.ai" } as User,
         apps: APP_CATALOG,
+        adminApps: ADMIN_CATALOG,
         profile: { displayName: "Dev User" },
       }
     }
@@ -141,7 +144,8 @@ export function useAuth() {
         }
       }
 
-      setState({ status: "authorized", user, apps: accessible, profile })
+      const adminApps = getAccessibleAdminApps(userDoc.roles)
+      setState({ status: "authorized", user, apps: accessible, adminApps, profile })
     })
 
     return unsubscribe

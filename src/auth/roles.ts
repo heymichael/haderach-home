@@ -1,6 +1,14 @@
-import { APP_CATALOG } from "@haderach/shared-ui"
+import { APP_CATALOG, ADMIN_CATALOG } from "@haderach/shared-ui"
 
-export { APP_CATALOG, APP_GRANTING_ROLES, hasAppAccess, getAccessibleApps } from "@haderach/shared-ui"
+export {
+  APP_CATALOG,
+  APP_GRANTING_ROLES,
+  ADMIN_CATALOG,
+  ADMIN_GRANTING_ROLES,
+  hasAppAccess,
+  getAccessibleApps,
+  getAccessibleAdminApps,
+} from "@haderach/shared-ui"
 export type { NavApp as AppEntry } from "@haderach/shared-ui"
 
 export function getReturnTo(): string | null {

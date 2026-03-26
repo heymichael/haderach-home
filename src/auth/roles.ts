@@ -22,5 +22,8 @@ export function returnToAppId(returnTo: string): string | null {
   for (const app of APP_CATALOG) {
     if (returnTo.startsWith(app.path)) return app.id
   }
+  for (const app of ADMIN_CATALOG) {
+    if (returnTo.startsWith(app.path)) return app.id
+  }
   return null
 }

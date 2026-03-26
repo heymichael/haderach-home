@@ -22,6 +22,7 @@ export interface NavApp {
 
 export interface GlobalNavProps {
   apps?: NavApp[]
+  adminApps?: NavApp[]
   activeAppId?: string
   userEmail?: string
   userPhotoURL?: string
@@ -124,8 +125,37 @@ function AppsDropdown({ apps, activeAppId }: { apps: NavApp[]; activeAppId?: str
   )
 }
 
+function AdminDropdown({ apps }: { apps: NavApp[] }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-sm text-chrome-text-muted hover:text-chrome-text-hover hover:bg-chrome-hover focus-visible:outline-none focus-visible:ring-0"
+        >
+          Admin
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-[160px] bg-chrome-bg text-chrome-text-strong border-chrome-border shadow-lg">
+        {apps.map((app) => (
+          <DropdownMenuItem key={app.id} asChild>
+            <a
+              href={app.path}
+              className="cursor-pointer focus:bg-chrome-hover focus:text-chrome-text-hover"
+            >
+              {app.label}
+            </a>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 export function GlobalNav({
   apps,
+  adminApps,
   activeAppId,
   userEmail,
   userPhotoURL,
@@ -136,6 +166,7 @@ export function GlobalNav({
   className,
 }: GlobalNavProps) {
   const hasApps = apps && apps.length > 0
+  const hasAdminApps = adminApps && adminApps.length > 0
 
   return (
     <header
@@ -159,6 +190,7 @@ export function GlobalNav({
       </div>
 
       <div className="flex items-center justify-end gap-3">
+        {hasAdminApps && <AdminDropdown apps={adminApps} />}
         {userEmail ? (
           <>
             <UserAvatar email={userEmail} photoURL={userPhotoURL} displayName={userDisplayName} />

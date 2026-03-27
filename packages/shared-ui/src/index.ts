@@ -109,3 +109,11 @@ export {
   getAccessibleApps,
   getAccessibleAdminApps,
 } from "./auth/app-catalog.ts"
+export { agentFetch } from "./lib/agent-fetch.ts"
+export { TagBadge, tagBadgeVariants } from "./components/ui/tag-badge.tsx"
+export { MultiSelect } from "./components/ui/multi-select.tsx"
+export type { MultiSelectItem, MultiSelectProps } from "./components/ui/multi-select.tsx"
+export { AdminModal } from "./components/admin/admin-modal.tsx"
+export type { AdminModalProps } from "./components/admin/admin-modal.tsx"
+export { UserTable } from "./components/admin/user-table.tsx"
+export type { UserTableColumn, UserTableProps } from "./components/admin/user-table.tsx"

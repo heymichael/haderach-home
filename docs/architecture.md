@@ -28,20 +28,34 @@ haderach-home/
 ├── packages/
 │   └── shared-ui/            # @haderach/shared-ui design system
 │       ├── src/
-│       │   ├── auth/
-│       │   │   └── app-catalog.ts  # APP_CATALOG, APP_GRANTING_ROLES, RBAC helpers
-│       │   ├── components/
-│       │   │   ├── ui/        # shadcn/ui primitives + DataTable
-│       │   │   └── GlobalNav.tsx
-│       │   ├── hooks/
-│       │   │   └── use-mobile.ts
-│       │   ├── lib/
-│       │   │   └── utils.ts
-│       │   ├── theme/
-│       │   │   └── index.css  # Platform chrome tokens + font imports
-│       │   └── index.ts       # Barrel export
-│       ├── package.json
-│       └── tsconfig.json
+    │       │   ├── auth/
+    │       │   │   └── app-catalog.ts  # APP_CATALOG, APP_GRANTING_ROLES, RBAC helpers
+    │       │   ├── components/
+    │       │   │   ├── admin/     # Admin-specific components
+    │       │   │   │   ├── admin-modal.tsx
+    │       │   │   │   ├── admin-modal.test.tsx
+    │       │   │   │   ├── user-table.tsx
+    │       │   │   │   └── user-table.test.tsx
+    │       │   │   ├── ui/        # shadcn/ui primitives + DataTable + admin widgets
+    │       │   │   │   ├── multi-select.tsx
+    │       │   │   │   ├── multi-select.test.tsx
+    │       │   │   │   ├── tag-badge.tsx
+    │       │   │   │   ├── tag-badge.test.tsx
+    │       │   │   │   └── ...    # button, card, input, table, etc.
+    │       │   │   └── GlobalNav.tsx
+    │       │   ├── hooks/
+    │       │   │   └── use-mobile.ts
+    │       │   ├── lib/
+    │       │   │   ├── agent-fetch.ts     # Shared authenticated fetch utility
+    │       │   │   ├── agent-fetch.test.ts
+    │       │   │   └── utils.ts
+    │       │   ├── theme/
+    │       │   │   └── index.css  # Platform chrome tokens + font imports
+    │       │   ├── test-setup.ts  # Vitest + jest-dom setup
+    │       │   └── index.ts       # Barrel export
+    │       ├── vitest.config.ts
+    │       ├── package.json
+    │       └── tsconfig.json
 ├── public/
 │   ├── assets/landing/logo.svg
 │   └── robots.txt
@@ -119,17 +133,27 @@ gs://<bucket>/home/versions/<commit-sha>/
 `packages/shared-ui/` is published as `@haderach/shared-ui` and consumed by:
 
 - This homepage app (via npm workspace resolution)
-- `card` repo (via `file:` protocol locally, GitHub Packages for CI)
+- `admin-system` repo (via `file:` protocol locally, GitHub Packages for CI)
+- `vendors` repo (same)
+- `card` repo (same)
 - `stocks` repo (same)
 
 The package exports:
 
 - **shadcn/ui primitives**: Button, Input, Select, Tabs, Card, Table, Separator, Sheet, Sidebar, Tooltip, DropdownMenu, Chart.
 - **DataTable**: Generic sortable data table (`DataTable<TData>`) wrapping TanStack Table + Table primitives, with optional CSV download. Also re-exports the `ColumnDef` type.
+- **Admin components**:
+  - `AdminModal` — generic modal shell with title, close button, scrollable body, optional footer.
+  - `UserTable` — configurable user list table with column definitions, sorting, type-ahead search, sticky headers, loading/empty states, and row click handler.
+  - `TagBadge` — styled pill for roles, departments, or vendor names (`default` and `muted` variants).
+  - `MultiSelect` — searchable multi-select popover with select-all, search filter, per-item toggle, and custom item rendering.
+- **agentFetch**: Shared authenticated fetch utility that prepends `/agent/api` and attaches Firebase ID tokens.
 - **GlobalNav**: Cross-app navigation component (uses platform chrome tokens exclusively).
 - **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies.
 - **Platform chrome tokens**: `chrome-*` color tokens for the global UI shell (nav, tooltips, dropdowns). Consistent across all apps — app `@theme` blocks must not redefine these.
 - **Font imports**: Geist Sans 400/500/600 weights.
+
+Unit tests (39 tests across 5 suites) run via Vitest + React Testing Library (`vitest.config.ts` with jsdom environment).
 
 Design tokens follow a two-tier architecture:
 

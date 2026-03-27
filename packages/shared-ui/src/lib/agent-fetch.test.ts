@@ -61,7 +61,7 @@ describe('agentFetch', () => {
       callOrder.push('getIdToken')
       return 'token'
     })
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (..._args) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
       callOrder.push('fetch')
       return new Response('ok')
     })

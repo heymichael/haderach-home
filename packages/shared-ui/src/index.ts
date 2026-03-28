@@ -109,10 +109,35 @@ export {
   getAccessibleApps,
   getAccessibleAdminApps,
 } from "./auth/app-catalog.ts"
+export {
+  Dialog,
+  DialogTrigger,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "./components/ui/dialog.tsx"
 export { agentFetch } from "./lib/agent-fetch.ts"
+export { ChatPanel } from "./components/chat-panel.tsx"
+export type { ChatPanelHandle, ChatPanelProps, ChatMessage, ChatPendingAction } from "./components/chat-panel.tsx"
+export { ChatToggle } from "./components/chat-toggle.tsx"
+export type { ChatToggleProps } from "./components/chat-toggle.tsx"
 export { TagBadge, tagBadgeVariants } from "./components/ui/tag-badge.tsx"
 export { MultiSelect } from "./components/ui/multi-select.tsx"
 export type { MultiSelectItem, MultiSelectProps } from "./components/ui/multi-select.tsx"
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+} from "./components/ui/popover.tsx"
+export { Calendar } from "./components/ui/calendar.tsx"
+export type { CalendarProps } from "./components/ui/calendar.tsx"
+export { DateRangePicker } from "./components/ui/date-range-picker.tsx"
+export type { DateRangePickerProps } from "./components/ui/date-range-picker.tsx"
+export type { DateRange } from "react-day-picker"
 export { AdminModal } from "./components/admin/admin-modal.tsx"
 export type { AdminModalProps } from "./components/admin/admin-modal.tsx"
 export { UserTable } from "./components/admin/user-table.tsx"

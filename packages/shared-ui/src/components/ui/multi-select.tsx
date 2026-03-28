@@ -47,8 +47,6 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
     return items.filter((item) => item.label.toLowerCase().includes(lower))
   }, [items, search])
 
-  const allFilteredSelected = filtered.length > 0 && filtered.every((item) => selectedIds.includes(item.id))
-
   function toggleItem(id: string) {
     onSelectionChange(
       selectedIds.includes(id)
@@ -112,13 +110,27 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
           </div>
 
           <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
-            <button
-              type="button"
-              onClick={allFilteredSelected ? clearAll : selectAll}
-              className="text-xs font-medium text-primary hover:text-primary/80"
-            >
-              {allFilteredSelected ? "Clear all" : "Select all"}
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={selectAll}
+                className="text-xs font-medium text-primary hover:text-primary/80"
+              >
+                Select all
+              </button>
+              {selectedIds.length > 0 && (
+                <>
+                  <span className="text-xs text-muted-foreground">·</span>
+                  <button
+                    type="button"
+                    onClick={clearAll}
+                    className="text-xs font-medium text-primary hover:text-primary/80"
+                  >
+                    Clear
+                  </button>
+                </>
+              )}
+            </div>
             {selectedIds.length > 0 && (
               <span className="text-xs text-muted-foreground">
                 {selectedIds.length} selected
@@ -130,32 +142,44 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
             {filtered.length === 0 ? (
               <p className="px-3 py-2 text-sm text-muted-foreground">No results</p>
             ) : (
-              filtered.map((item) => {
-                const selected = selectedIds.includes(item.id)
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => toggleItem(item.id)}
-                    className={cn(
-                      "flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-accent/50 text-left",
-                      selected && "bg-accent/30",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-input",
-                        selected && "border-primary bg-primary text-primary-foreground",
+              (() => {
+                const selectedItems = filtered.filter((item) => selectedIds.includes(item.id))
+                const unselectedItems = filtered.filter((item) => !selectedIds.includes(item.id))
+                const sorted = [...selectedItems, ...unselectedItems]
+                const showSeparator = selectedItems.length > 0 && unselectedItems.length > 0
+
+                return sorted.map((item, idx) => {
+                  const selected = selectedIds.includes(item.id)
+                  const isSeparator = showSeparator && idx === selectedItems.length
+                  return (
+                    <React.Fragment key={item.id}>
+                      {isSeparator && (
+                        <div className="my-1 border-t border-border-subtle" />
                       )}
-                    >
-                      {selected && <Check className="h-3 w-3" />}
-                    </div>
-                    <span className="truncate">
-                      {renderItem ? renderItem(item) : item.label}
-                    </span>
-                  </button>
-                )
-              })
+                      <button
+                        type="button"
+                        onClick={() => toggleItem(item.id)}
+                        className={cn(
+                          "flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-accent/50 text-left",
+                          selected && "bg-accent/30",
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-input",
+                            selected && "border-primary bg-primary text-primary-foreground",
+                          )}
+                        >
+                          {selected && <Check className="h-3 w-3" />}
+                        </div>
+                        <span className="truncate">
+                          {renderItem ? renderItem(item) : item.label}
+                        </span>
+                      </button>
+                    </React.Fragment>
+                  )
+                })
+              })()
             )}
           </div>
         </div>

@@ -26,7 +26,7 @@ export type AuthState =
   | { status: "loading" }
   | { status: "init-error"; message: string }
   | { status: "signed-out" }
-  | { status: "authorized"; user: User; apps: AppEntry[]; profile: UserProfile }
+  | { status: "authorized"; user: User; apps: AppEntry[]; roles: string[]; profile: UserProfile }
   | { status: "no-access"; user: User; profile: UserProfile }
 
 function shouldBypassAuth(): boolean {
@@ -71,6 +71,7 @@ export function useAuth() {
         status: "authorized",
         user: { email: "dev@haderach.ai" } as User,
         apps: APP_CATALOG,
+        roles: ["admin", "finance_admin"],
         profile: { displayName: "Dev User" },
       }
     }
@@ -137,7 +138,7 @@ export function useAuth() {
         }
       }
 
-      setState({ status: "authorized", user, apps: accessible, profile })
+      setState({ status: "authorized", user, apps: accessible, roles: userDoc.roles, profile })
     })
 
     return unsubscribe

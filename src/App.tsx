@@ -2,6 +2,7 @@ import { GlobalNav, Card, CardContent, Button } from "@haderach/shared-ui"
 import type { NavApp } from "@haderach/shared-ui"
 import { useAuth, type AuthState } from "./auth/use-auth.ts"
 import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
+import { SettingsHub } from "./SettingsHub.tsx"
 
 function buildNavProps(
   state: AuthState,
@@ -67,11 +68,17 @@ function ReturnToPrompt({ onSignIn }: { onSignIn: () => void }) {
   )
 }
 
+function isSettingsPath(): boolean {
+  const p = window.location.pathname
+  return p === "/admin" || p === "/admin/"
+}
+
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
 
   const navProps = buildNavProps(state, handleSignIn, handleSignOut)
   const showReturnToPrompt = state.status === "signed-out" && getReturnTo()
+  const showSettings = isSettingsPath() && state.status === "authorized"
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -100,6 +107,9 @@ function App() {
           </div>
         )}
 
+        {showSettings && (
+          <SettingsHub roles={state.roles} />
+        )}
       </main>
     </div>
   )

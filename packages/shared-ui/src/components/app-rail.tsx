@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react"
 import { cn } from "../lib/utils.ts"
 import {
   DropdownMenu,
@@ -16,6 +17,29 @@ import {
   PanelLeft,
   type LucideIcon,
 } from "lucide-react"
+
+const RAIL_STORAGE_KEY = "haderach-rail-expanded"
+
+export function useRailExpanded(defaultExpanded = true): [boolean, () => void] {
+  const [expanded, setExpanded] = useState(() => {
+    try {
+      const stored = localStorage.getItem(RAIL_STORAGE_KEY)
+      return stored !== null ? stored === "true" : defaultExpanded
+    } catch {
+      return defaultExpanded
+    }
+  })
+
+  const toggle = useCallback(() => {
+    setExpanded((prev) => {
+      const next = !prev
+      try { localStorage.setItem(RAIL_STORAGE_KEY, String(next)) } catch {}
+      return next
+    })
+  }, [])
+
+  return [expanded, toggle]
+}
 
 const ICON_MAP: Record<string, LucideIcon> = {
   truck: Truck,

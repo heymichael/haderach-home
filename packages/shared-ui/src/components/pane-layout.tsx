@@ -66,10 +66,10 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
         <div
           className={cn(
             "flex flex-col overflow-hidden transition-[width,flex] duration-200",
-            chatOnly && "w-1/3",
-            bothOpen && "w-1/3 shrink-0",
+            chatOnly && "w-[30%]",
+            bothOpen && "w-[30%] shrink-0",
             detailOnly && "hidden",
-            !chatOpen && !detailPane && "w-1/3",
+            !chatOpen && !detailPane && "w-[30%]",
           )}
         >
           {chatContent}

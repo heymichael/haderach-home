@@ -6,13 +6,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "./ui/dropdown-menu.tsx"
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "./ui/tooltip.tsx"
 
 export interface NavApp {
   id: string
@@ -22,7 +18,6 @@ export interface NavApp {
 
 export interface GlobalNavProps {
   apps?: NavApp[]
-  adminApps?: NavApp[]
   activeAppId?: string
   userEmail?: string
   userPhotoURL?: string
@@ -45,7 +40,7 @@ function getInitials(displayName?: string, email?: string): string {
   return "H"
 }
 
-function UserAvatar({
+function AvatarImage({
   email,
   photoURL,
   displayName,
@@ -59,38 +54,93 @@ function UserAvatar({
   const initials = getInitials(displayName, email)
   const label = displayName || email
 
+  if (photoURL) {
+    return (
+      <img
+        src={photoURL}
+        alt={label}
+        referrerPolicy="no-referrer"
+        className={cn(
+          "size-8 shrink-0 rounded-full object-cover",
+          className,
+        )}
+      />
+    )
+  }
+
   return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {photoURL ? (
-            <img
-              src={photoURL}
-              alt={label}
-              referrerPolicy="no-referrer"
-              className={cn(
-                "size-8 shrink-0 rounded-full object-cover",
-                className,
+    <div
+      className={cn(
+        "flex size-8 shrink-0 items-center justify-center rounded-full bg-chrome-avatar text-[0.625rem] font-semibold leading-none text-white select-none",
+        className,
+      )}
+      aria-label={label}
+    >
+      {initials}
+    </div>
+  )
+}
+
+function UserDropdown({
+  email,
+  photoURL,
+  displayName,
+  onSignOut,
+}: {
+  email: string
+  photoURL?: string
+  displayName?: string
+  onSignOut?: () => void
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-chrome-text-muted"
+          aria-label="User menu"
+        >
+          <AvatarImage email={email} photoURL={photoURL} displayName={displayName} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="min-w-[220px] bg-chrome-bg text-chrome-text-strong border-chrome-border shadow-lg"
+      >
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex items-center gap-3 py-1">
+            <AvatarImage email={email} photoURL={photoURL} displayName={displayName} />
+            <div className="flex flex-col gap-0.5 overflow-hidden">
+              {displayName && (
+                <span className="truncate text-sm font-medium text-chrome-text-strong">
+                  {displayName}
+                </span>
               )}
-            />
-          ) : (
-            <div
-              className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-full bg-chrome-avatar text-[0.625rem] font-semibold leading-none text-white select-none",
-                className,
-              )}
-              aria-label={label}
-            >
-              {initials}
+              <span className="truncate text-xs text-chrome-text-muted">
+                {email}
+              </span>
             </div>
-          )}
-        </TooltipTrigger>
-        <TooltipContent side="left" className="bg-chrome-hover text-chrome-text-strong">
-          {displayName && <p className="font-bold">{displayName}</p>}
-          <p>{email}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-chrome-border" />
+        <DropdownMenuItem asChild>
+          <a
+            href="/admin/"
+            className="cursor-pointer focus:bg-chrome-hover focus:text-chrome-text-hover"
+          >
+            Settings
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-chrome-border" />
+        {onSignOut && (
+          <DropdownMenuItem
+            onClick={onSignOut}
+            className="cursor-pointer focus:bg-chrome-hover focus:text-chrome-text-hover"
+          >
+            Log out
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -125,37 +175,8 @@ function AppsDropdown({ apps, activeAppId }: { apps: NavApp[]; activeAppId?: str
   )
 }
 
-function AdminDropdown({ apps }: { apps: NavApp[] }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-sm text-chrome-text-muted hover:text-chrome-text-hover hover:bg-chrome-hover focus-visible:outline-none focus-visible:ring-0"
-        >
-          Admin
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[160px] bg-chrome-bg text-chrome-text-strong border-chrome-border shadow-lg">
-        {apps.map((app) => (
-          <DropdownMenuItem key={app.id} asChild>
-            <a
-              href={app.path}
-              className="cursor-pointer focus:bg-chrome-hover focus:text-chrome-text-hover"
-            >
-              {app.label}
-            </a>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
 export function GlobalNav({
   apps,
-  adminApps,
   activeAppId,
   userEmail,
   userPhotoURL,
@@ -166,7 +187,6 @@ export function GlobalNav({
   className,
 }: GlobalNavProps) {
   const hasApps = apps && apps.length > 0
-  const hasAdminApps = adminApps && adminApps.length > 0
 
   return (
     <header
@@ -189,20 +209,14 @@ export function GlobalNav({
         )}
       </div>
 
-      <div className="flex items-center justify-end gap-3">
-        {hasAdminApps && <AdminDropdown apps={adminApps} />}
+      <div className="flex items-center justify-end">
         {userEmail ? (
-          <>
-            <UserAvatar email={userEmail} photoURL={userPhotoURL} displayName={userDisplayName} />
-            {onSignOut && (
-              <button
-                onClick={onSignOut}
-                className="text-sm text-chrome-text-muted transition-colors hover:text-chrome-text-hover"
-              >
-                Sign out
-              </button>
-            )}
-          </>
+          <UserDropdown
+            email={userEmail}
+            photoURL={userPhotoURL}
+            displayName={userDisplayName}
+            onSignOut={onSignOut}
+          />
         ) : (
           onSignIn && (
             <Button

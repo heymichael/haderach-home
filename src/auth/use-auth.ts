@@ -10,9 +10,7 @@ import { initFirebase, googleProvider } from "./firebase.ts"
 import { buildDisplayName } from "@haderach/shared-ui"
 import {
   APP_CATALOG,
-  ADMIN_CATALOG,
   getAccessibleApps,
-  getAccessibleAdminApps,
   hasAppAccess,
   getReturnTo,
   returnToAppId,
@@ -28,7 +26,7 @@ export type AuthState =
   | { status: "loading" }
   | { status: "init-error"; message: string }
   | { status: "signed-out" }
-  | { status: "authorized"; user: User; apps: AppEntry[]; adminApps: AppEntry[]; profile: UserProfile }
+  | { status: "authorized"; user: User; apps: AppEntry[]; profile: UserProfile }
   | { status: "no-access"; user: User; profile: UserProfile }
 
 function shouldBypassAuth(): boolean {
@@ -73,7 +71,6 @@ export function useAuth() {
         status: "authorized",
         user: { email: "dev@haderach.ai" } as User,
         apps: APP_CATALOG,
-        adminApps: ADMIN_CATALOG,
         profile: { displayName: "Dev User" },
       }
     }
@@ -140,8 +137,7 @@ export function useAuth() {
         }
       }
 
-      const adminApps = getAccessibleAdminApps(userDoc.roles)
-      setState({ status: "authorized", user, apps: accessible, adminApps, profile })
+      setState({ status: "authorized", user, apps: accessible, profile })
     })
 
     return unsubscribe

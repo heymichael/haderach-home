@@ -5,7 +5,6 @@ export interface BaseAuthUser {
   photoURL?: string
   displayName?: string
   accessibleApps: NavApp[]
-  accessibleAdminApps: NavApp[]
   signOut: () => void
   getIdToken: () => Promise<string>
 }

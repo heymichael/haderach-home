@@ -23,7 +23,6 @@ function buildNavProps(
       return {
         ...base,
         apps: state.apps as NavApp[],
-        adminApps: state.adminApps as NavApp[],
         userEmail: state.user.email ?? undefined,
         userPhotoURL: state.profile.photoURL,
         userDisplayName: state.profile.displayName,

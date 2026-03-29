@@ -14,12 +14,12 @@ export const APP_GRANTING_ROLES: Record<string, string[]> = {
 
 export const ADMIN_CATALOG: NavApp[] = [
   { id: "system_administration", label: "System", path: "/admin/system/" },
-  { id: "finance_administration", label: "Finance", path: "/admin/finance/" },
+  { id: "vendor_administration", label: "Vendors", path: "/admin/vendors/" },
 ]
 
 export const ADMIN_GRANTING_ROLES: Record<string, string[]> = {
   system_administration: ["admin"],
-  finance_administration: ["finance_admin"],
+  vendor_administration: ["finance_admin"],
 }
 
 export function hasAppAccess(userRoles: string[], appId: string): boolean {

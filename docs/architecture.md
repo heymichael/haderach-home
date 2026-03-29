@@ -29,7 +29,9 @@ haderach-home/
 │   └── shared-ui/            # @haderach/shared-ui design system
 │       ├── src/
     │       │   ├── auth/
-    │       │   │   └── app-catalog.ts  # APP_CATALOG, APP_GRANTING_ROLES, RBAC helpers
+    │       │   │   ├── app-catalog.ts      # APP_CATALOG, APP_GRANTING_ROLES, RBAC helpers
+    │       │   │   ├── base-auth-user.ts   # BaseAuthUser interface
+    │       │   │   └── user-doc.ts         # UserDoc, fetchUserDoc, buildDisplayName
     │       │   ├── components/
     │       │   │   ├── admin/     # Admin-specific components
     │       │   │   │   ├── admin-modal.tsx
@@ -150,6 +152,7 @@ The package exports:
 - **agentFetch**: Shared authenticated fetch utility that prepends `/agent/api` and attaches Firebase ID tokens.
 - **GlobalNav**: Cross-app navigation component (uses platform chrome tokens exclusively).
 - **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies.
+- **Auth primitives**: `BaseAuthUser` interface (common auth context shape), `UserDoc` interface and `fetchUserDoc` (calls `/agent/api/me`), `buildDisplayName`. Apps with no extra fields re-export `BaseAuthUser` as their `AuthUser`; apps with extensions (e.g. vendors) use `interface AuthUser extends BaseAuthUser`.
 - **Platform chrome tokens**: `chrome-*` color tokens for the global UI shell (nav, tooltips, dropdowns). Consistent across all apps — app `@theme` blocks must not redefine these.
 - **Font imports**: Geist Sans 400/500/600 weights.
 

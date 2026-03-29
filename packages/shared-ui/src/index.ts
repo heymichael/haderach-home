@@ -109,6 +109,9 @@ export {
   getAccessibleApps,
   getAccessibleAdminApps,
 } from "./auth/app-catalog.ts"
+export type { BaseAuthUser } from "./auth/base-auth-user.ts"
+export type { UserDoc } from "./auth/user-doc.ts"
+export { fetchUserDoc, buildDisplayName } from "./auth/user-doc.ts"
 export {
   Dialog,
   DialogTrigger,

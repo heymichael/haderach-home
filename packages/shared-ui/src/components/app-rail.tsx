@@ -12,6 +12,7 @@ import {
   Truck,
   BarChart3,
   CreditCard,
+  Layers,
   PanelLeft,
   type LucideIcon,
 } from "lucide-react"
@@ -20,6 +21,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   truck: Truck,
   "bar-chart-3": BarChart3,
   "credit-card": CreditCard,
+  layers: Layers,
 }
 
 function getInitials(displayName?: string, email?: string): string {

@@ -8,8 +8,8 @@ export interface NavApp {
 
 export const APP_CATALOG: NavApp[] = [
   { id: "card", label: "Card", path: "/card/", icon: "credit-card", railEnabled: false },
-  { id: "stocks", label: "Commodities", path: "/stocks/", icon: "bar-chart-3", railEnabled: false },
   { id: "vendors", label: "Vendors", path: "/vendors/", icon: "truck", railEnabled: true },
+  { id: "stocks", label: "Commodities", path: "/stocks/", icon: "layers", railEnabled: true },
 ]
 
 export const APP_GRANTING_ROLES: Record<string, string[]> = {

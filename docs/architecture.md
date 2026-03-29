@@ -66,6 +66,7 @@ haderach-home/
 │   └── generate-manifest.mjs
 ├── src/
 │   ├── App.tsx
+│   ├── SettingsHub.tsx            # Role-gated admin navigation shell at /admin/
 │   ├── auth/
 │   │   ├── firebase.ts
 │   │   ├── roles.ts
@@ -91,6 +92,7 @@ haderach-home/
 ### This repository owns
 
 - Homepage SPA: auth gateway, app launcher, and homepage content at `/`.
+- Settings hub: role-gated admin navigation shell at `/admin/`, routing users to admin apps based on their roles.
 - Shared UI design system: `@haderach/shared-ui` with shadcn/ui primitives, GlobalNav, and theme tokens.
 - App CI checks (lint, build).
 - Versioned artifact packaging and manifest publication.
@@ -150,9 +152,20 @@ The package exports:
   - `TagBadge` — styled pill for roles, departments, or vendor names (`default` and `muted` variants).
   - `MultiSelect` — searchable multi-select popover with select-all, search filter, per-item toggle, and custom item rendering.
 - **agentFetch**: Shared authenticated fetch utility that prepends `/agent/api` and attaches Firebase ID tokens.
-- **GlobalNav**: Cross-app navigation component (uses platform chrome tokens exclusively).
+- **GlobalNav**: Cross-app navigation component with avatar-triggered dropdown menu (profile info, Settings link, Log out). Uses platform chrome tokens exclusively.
 - **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies.
 - **Auth primitives**: `BaseAuthUser` interface (common auth context shape), `UserDoc` interface and `fetchUserDoc` (calls `/agent/api/me`), `buildDisplayName`. Apps with no extra fields re-export `BaseAuthUser` as their `AuthUser`; apps with extensions (e.g. vendors) use `interface AuthUser extends BaseAuthUser`.
+
+## Settings Hub
+
+The homepage renders a Settings hub at `/admin/` (and `/admin`) — a lightweight navigation shell that routes users to admin apps. Firebase Hosting serves this via a rewrite to the homepage `index.html`.
+
+- **Auth gating**: Requires `admin` or `finance_admin` role. Users without either see an "Access Denied" message.
+- **Content**: A role-filtered list of admin domains. Each item is a link that does full page navigation:
+  - **System** → `/admin/system/` (visible to `admin` role) — user management, roles, app permissions
+  - **Vendors** → `/admin/vendors/` (visible to `finance_admin` role) — vendor access controls, spend permissions
+- **Entry point**: The GlobalNav avatar dropdown always includes a "Settings" link pointing to `/admin/`.
+- **No router dependency**: Path detection is done via `window.location.pathname`, not react-router-dom.
 - **Platform chrome tokens**: `chrome-*` color tokens for the global UI shell (nav, tooltips, dropdowns). Consistent across all apps — app `@theme` blocks must not redefine these.
 - **Font imports**: Geist Sans 400/500/600 weights.
 

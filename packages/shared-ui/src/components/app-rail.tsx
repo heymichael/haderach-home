@@ -33,7 +33,7 @@ export function useRailExpanded(defaultExpanded = true): [boolean, () => void] {
   const toggle = useCallback(() => {
     setExpanded((prev) => {
       const next = !prev
-      try { localStorage.setItem(RAIL_STORAGE_KEY, String(next)) } catch {}
+      try { localStorage.setItem(RAIL_STORAGE_KEY, String(next)) } catch { /* storage unavailable */ }
       return next
     })
   }, [])

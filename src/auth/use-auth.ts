@@ -7,6 +7,7 @@ import {
 } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { initFirebase, googleProvider } from "./firebase.ts"
+import { buildDisplayName } from "@haderach/shared-ui"
 import {
   APP_CATALOG,
   ADMIN_CATALOG,
@@ -63,11 +64,6 @@ async function fetchUserDoc(
   } catch {
     return empty
   }
-}
-
-function buildDisplayName(firstName: string, lastName: string): string | undefined {
-  const full = [firstName, lastName].filter(Boolean).join(" ")
-  return full || undefined
 }
 
 export function useAuth() {

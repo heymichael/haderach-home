@@ -171,8 +171,9 @@ Authentication is centralized at the platform level.
 
 - Auth provider: Firebase Authentication with Google provider.
 - Session scope: shared across all apps on `haderach.ai`.
-- Authorization: RBAC via Firestore `users/{email}` documents.
-- Unauthenticated: show sign-in view.
+- Authorization: RBAC via `users/{email}` documents. App frontends resolve user docs through `fetchUserDoc` (from `@haderach/shared-ui`), which calls `GET /agent/api/me`. The home app still reads Firestore directly for its own auth flow.
+- Unauthenticated (production): redirect to `/` for sign-in.
+- Unauthenticated (local dev): show dev-only Google sign-in button (no redirect needed).
 - Unauthorized: show no-access view.
 
 ## Security and Indexing Defaults

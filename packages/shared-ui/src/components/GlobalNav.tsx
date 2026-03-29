@@ -9,12 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "./ui/dropdown-menu.tsx"
-
-export interface NavApp {
-  id: string
-  label: string
-  path: string
-}
+import type { NavApp } from "../auth/app-catalog.ts"
 
 export interface GlobalNavProps {
   apps?: NavApp[]

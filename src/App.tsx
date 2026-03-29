@@ -1,4 +1,5 @@
-import { GlobalNav, Card, CardContent, Button } from "@haderach/shared-ui"
+import { useEffect } from "react"
+import { GlobalNav, Card, CardContent, Button, getAccessibleRailApps } from "@haderach/shared-ui"
 import type { NavApp } from "@haderach/shared-ui"
 import { useAuth, type AuthState } from "./auth/use-auth.ts"
 import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
@@ -75,6 +76,15 @@ function isSettingsPath(): boolean {
 
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
+
+  useEffect(() => {
+    if (state.status !== "authorized") return
+    if (isSettingsPath()) return
+    const railApps = getAccessibleRailApps(state.roles)
+    if (railApps.length > 0) {
+      window.location.replace(railApps[0].path)
+    }
+  }, [state])
 
   const navProps = buildNavProps(state, handleSignIn, handleSignOut)
   const showReturnToPrompt = state.status === "signed-out" && getReturnTo()

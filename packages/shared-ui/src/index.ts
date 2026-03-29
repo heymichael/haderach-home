@@ -99,7 +99,14 @@ export {
 export type { ChartConfig } from "./components/ui/chart.tsx"
 export { useIsMobile } from "./hooks/use-mobile.ts"
 export { GlobalNav } from "./components/GlobalNav.tsx"
-export type { GlobalNavProps, NavApp } from "./components/GlobalNav.tsx"
+export type { GlobalNavProps } from "./components/GlobalNav.tsx"
+export type { NavApp } from "./auth/app-catalog.ts"
+export { AppRail } from "./components/app-rail.tsx"
+export type { AppRailProps } from "./components/app-rail.tsx"
+export { PaneToolbar } from "./components/pane-toolbar.tsx"
+export type { PaneToolbarProps, PaneId } from "./components/pane-toolbar.tsx"
+export { PaneLayout } from "./components/pane-layout.tsx"
+export type { PaneLayoutHandle, PaneLayoutProps } from "./components/pane-layout.tsx"
 export {
   APP_CATALOG,
   APP_GRANTING_ROLES,
@@ -107,6 +114,7 @@ export {
   ADMIN_GRANTING_ROLES,
   hasAppAccess,
   getAccessibleApps,
+  getAccessibleRailApps,
   getAccessibleAdminApps,
 } from "./auth/app-catalog.ts"
 export type { BaseAuthUser } from "./auth/base-auth-user.ts"

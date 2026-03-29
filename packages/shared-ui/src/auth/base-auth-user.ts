@@ -1,4 +1,4 @@
-import type { NavApp } from '../components/GlobalNav.tsx'
+import type { NavApp } from './app-catalog.ts'
 
 export interface BaseAuthUser {
   email: string

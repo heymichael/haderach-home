@@ -33,10 +33,12 @@ export interface ChatPanelProps {
   onClose?: () => void
   mode?: "standalone" | "panel"
   appContext: string
-  getIdToken: () => Promise<string>
+  getIdToken?: () => Promise<string>
   onToolResult?: (toolNames: string[]) => void
   onPendingAction?: (action: ChatPendingAction) => void
   title?: string
+  disabled?: boolean
+  placeholderMessage?: string
 }
 
 export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function ChatPanel({
@@ -48,6 +50,8 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
   onToolResult,
   onPendingAction,
   title = "Agent",
+  disabled = false,
+  placeholderMessage = "Chat capabilities coming soon.",
 }, ref) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
@@ -69,7 +73,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
 
   const send = useCallback(async () => {
     const text = input.trim()
-    if (!text || loading) return
+    if (!text || loading || disabled || !getIdToken) return
 
     const userMsg: ChatMessage = { role: "user", content: text }
     const updated = [...messages, userMsg]
@@ -112,7 +116,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     } finally {
       setLoading(false)
     }
-  }, [input, loading, messages, getIdToken, appContext, onToolResult, onPendingAction])
+  }, [input, loading, disabled, messages, getIdToken, appContext, onToolResult, onPendingAction])
 
   const isPanel = mode === "panel"
 
@@ -154,6 +158,11 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
         )}
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-3">
+          {disabled && messages.length === 0 && (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-sm text-muted-foreground italic">{placeholderMessage}</p>
+            </div>
+          )}
           {messages.filter((m) => !m.hidden).map((m, i) => (
             <div
               key={i}
@@ -201,11 +210,11 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
               }
             }}
             placeholder="Message the agent…"
-            disabled={loading}
+            disabled={loading || disabled}
             rows={5}
             className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
           />
-          <Button size="icon" variant="ghost" disabled={loading || !input.trim()} onClick={send}>
+          <Button size="icon" variant="ghost" disabled={loading || disabled || !input.trim()} onClick={send}>
             <Send className="h-4 w-4" />
           </Button>
         </div>

@@ -152,9 +152,57 @@ The package exports:
   - `TagBadge` — styled pill for roles, departments, or vendor names (`default` and `muted` variants).
   - `MultiSelect` — searchable multi-select popover with select-all, search filter, per-item toggle, and custom item rendering.
 - **agentFetch**: Shared authenticated fetch utility that prepends `/agent/api` and attaches Firebase ID tokens.
-- **GlobalNav**: Cross-app navigation component with avatar-triggered dropdown menu (profile info, Settings link, Log out). Uses platform chrome tokens exclusively.
-- **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies.
+- **GlobalNav**: Legacy top-bar navigation component with avatar-triggered dropdown menu (profile info, Settings link, Log out). Uses platform chrome tokens exclusively. Retained for apps not yet migrated to the domain shell layout.
+- **AppRail**: Collapsible left rail for domain navigation. Replaces `GlobalNav` + `Sidebar` in migrated apps. Shows logo, role-gated domain icons with active indicator, and user avatar with upward flyout. Push behavior (content reflows on expand/collapse).
+- **PaneToolbar**: Thin horizontal toolbar (h-12) with toggle icons for chat, analytics, and data panes. Clicking an icon snaps that pane to full width.
+- **PaneLayout**: Resizable three-pane content area (chat | analytics | data) using `react-resizable-panels`. Fixed left-to-right order, drag handles between panes, collapsible with minimum size threshold.
+- **ChatPanel**: Chat interface component. Supports `mode="panel"` (fills container, no close button — for use inside `PaneLayout`) and `mode="standalone"` (legacy fixed-width overlay behavior).
+- **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleRailApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies. `NavApp` includes optional `icon` (lucide icon key) and `railEnabled` fields for the domain shell layout.
 - **Auth primitives**: `BaseAuthUser` interface (common auth context shape), `UserDoc` interface and `fetchUserDoc` (calls `/agent/api/me`), `buildDisplayName`. Apps with no extra fields re-export `BaseAuthUser` as their `AuthUser`; apps with extensions (e.g. vendors) use `interface AuthUser extends BaseAuthUser`.
+
+## Domain Shell Layout
+
+The domain shell is the standard app layout for business domain apps (vendors, stocks, etc.). It replaces the previous `GlobalNav` + `Sidebar` pattern.
+
+### Structure
+
+```text
+┌──────────┬──────────────────────────────────────────┐
+│          │  PaneToolbar [chat] [analytics] [data]   │
+│  AppRail │──────────────────────────────────────────│
+│  (left)  │  PaneLayout                              │
+│          │  ┌─────────┬──────────┬─────────┐        │
+│          │  │  Chat   │Analytics │  Data   │        │
+│          │  │  pane   │  pane    │  pane   │        │
+│          │  └─────────┴──────────┴─────────┘        │
+└──────────┴──────────────────────────────────────────┘
+```
+
+### Key behaviors
+
+- **AppRail**: Collapsible between icon-only (64px) and expanded (220px) states. Push behavior — content reflows. Toggle button styled like the legacy `SidebarTrigger`. Domain list is dynamic based on `getAccessibleRailApps()`. Active domain gets a left accent bar and highlighted icon color. Admin apps are not in the rail — accessed via the avatar flyout.
+- **PaneToolbar**: Three toggle icons (chat, analytics, data). Click to snap that pane to full width. Active pane shows its label next to the icon.
+- **PaneLayout**: Wraps `react-resizable-panels`. Fixed order: chat | analytics | data. Each pane is collapsible with ~15% minimum size. Drag resize handles between panes to split the view.
+- **Landing redirect**: Authorized users on `/` are redirected to their first accessible rail-enabled app via `getAccessibleRailApps()`.
+
+### Migration status
+
+| App | Status |
+|-----|--------|
+| vendors | Migrated |
+| stocks | Pending (railEnabled: false) |
+| card | Pending (railEnabled: false) |
+| admin-vendors | Uses legacy GlobalNav |
+| admin-system | Uses legacy GlobalNav |
+
+### Per-domain pane mapping
+
+Each domain app maps the three panes to its own content:
+
+| Domain | Chat | Analytics | Data |
+|--------|------|-----------|------|
+| Vendors | ChatPanel (agent) | Spending views | VendorList/DataTable |
+| Commodities | Coming soon | Stocks views | Coming soon |
 
 ## Settings Hub
 

@@ -1,9 +1,15 @@
-import type { NavApp } from "../components/GlobalNav.tsx"
+export interface NavApp {
+  id: string
+  label: string
+  path: string
+  icon?: string
+  railEnabled?: boolean
+}
 
 export const APP_CATALOG: NavApp[] = [
-  { id: "card", label: "Card", path: "/card/" },
-  { id: "stocks", label: "Commodities", path: "/stocks/" },
-  { id: "vendors", label: "Vendors", path: "/vendors/" },
+  { id: "card", label: "Card", path: "/card/", icon: "credit-card", railEnabled: false },
+  { id: "stocks", label: "Commodities", path: "/stocks/", icon: "bar-chart-3", railEnabled: false },
+  { id: "vendors", label: "Vendors", path: "/vendors/", icon: "truck", railEnabled: true },
 ]
 
 export const APP_GRANTING_ROLES: Record<string, string[]> = {
@@ -30,6 +36,10 @@ export function hasAppAccess(userRoles: string[], appId: string): boolean {
 
 export function getAccessibleApps(userRoles: string[]): NavApp[] {
   return APP_CATALOG.filter((app) => hasAppAccess(userRoles, app.id))
+}
+
+export function getAccessibleRailApps(userRoles: string[]): NavApp[] {
+  return APP_CATALOG.filter((app) => app.railEnabled && hasAppAccess(userRoles, app.id))
 }
 
 export function getAccessibleAdminApps(userRoles: string[]): NavApp[] {

@@ -29,8 +29,9 @@ export interface ChatPanelHandle {
 }
 
 export interface ChatPanelProps {
-  open: boolean
-  onClose: () => void
+  open?: boolean
+  onClose?: () => void
+  mode?: "standalone" | "panel"
   appContext: string
   getIdToken: () => Promise<string>
   onToolResult?: (toolNames: string[]) => void
@@ -39,8 +40,9 @@ export interface ChatPanelProps {
 }
 
 export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function ChatPanel({
-  open,
+  open = true,
   onClose,
+  mode = "standalone",
   appContext,
   getIdToken,
   onToolResult,
@@ -112,28 +114,46 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     }
   }, [input, loading, messages, getIdToken, appContext, onToolResult, onPendingAction])
 
-  if (!open) return null
+  const isPanel = mode === "panel"
+
+  if (!isPanel && !open) return null
 
   return (
-    <div className="flex h-full w-[25rem] flex-col border-l border-border bg-background">
-        <div className="flex h-12 items-center gap-2 border-b px-4">
-          <Button variant="ghost" size="icon" className="size-7" onClick={onClose} aria-label="Close chat">
-            <PanelRightClose />
-          </Button>
-          <Separator orientation="vertical" className="h-4" />
-          <h2 className="text-sm font-semibold">{title}</h2>
-          {messages.length > 0 && (
+    <div className={cn(
+      "flex flex-col bg-background",
+      isPanel ? "h-full w-full" : "h-full w-[25rem] border-l border-border",
+    )}>
+        {!isPanel && (
+          <div className="flex h-12 items-center gap-2 border-b px-4">
+            <Button variant="ghost" size="icon" className="size-7" onClick={onClose} aria-label="Close chat">
+              <PanelRightClose />
+            </Button>
+            <Separator orientation="vertical" className="h-4" />
+            <h2 className="text-sm font-semibold">{title}</h2>
+            {messages.length > 0 && (
+              <button
+                type="button"
+                className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setMessages([])}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
+        {isPanel && messages.length > 0 && (
+          <div className="flex h-10 items-center justify-end border-b px-4">
             <button
               type="button"
-              className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+              className="text-xs text-muted-foreground hover:text-foreground"
               onClick={() => setMessages([])}
             >
               Clear
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-3">
           {messages.filter((m) => !m.hidden).map((m, i) => (
             <div
               key={i}
@@ -169,7 +189,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           )}
         </div>
 
-        <div className="flex items-end gap-2 border-t p-3">
+        <div className="flex items-end gap-2 border-t p-4">
           <textarea
             ref={textareaRef}
             value={input}

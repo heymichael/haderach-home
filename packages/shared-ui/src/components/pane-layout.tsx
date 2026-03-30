@@ -75,12 +75,8 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
           {chatContent}
         </div>
 
-        {/* Resize handle — only visible when both panes are open */}
-        {bothOpen && (
-          <div className="flex w-2 cursor-col-resize items-center justify-center transition-colors hover:bg-chrome-hover/50">
-            <div className="h-8 w-0.5 rounded-full bg-chrome-border" />
-          </div>
-        )}
+        {/* Spacer between panes */}
+        {bothOpen && <div className="w-2 shrink-0" />}
 
         {/* Detail pane */}
         <div

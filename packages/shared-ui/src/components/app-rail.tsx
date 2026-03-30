@@ -21,15 +21,8 @@ import {
 
 const RAIL_STORAGE_KEY = "haderach-rail-expanded"
 
-export function useRailExpanded(defaultExpanded = true): [boolean, () => void] {
-  const [expanded, setExpanded] = useState(() => {
-    try {
-      const stored = localStorage.getItem(RAIL_STORAGE_KEY)
-      return stored !== null ? stored === "true" : defaultExpanded
-    } catch {
-      return defaultExpanded
-    }
-  })
+export function useRailExpanded(): [boolean, () => void] {
+  const [expanded, setExpanded] = useState(true)
 
   const toggle = useCallback(() => {
     setExpanded((prev) => {
@@ -136,7 +129,7 @@ export function AppRail({
   return (
     <nav
       className={cn(
-        "flex h-screen flex-col overflow-hidden border-r border-chrome-border bg-chrome-bg transition-[width] duration-200 ease-in-out",
+        "flex h-screen flex-col overflow-hidden bg-chrome-bg transition-[width] duration-200 ease-in-out",
         expanded ? "w-[220px]" : "w-20",
         className,
       )}

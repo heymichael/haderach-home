@@ -30,7 +30,7 @@ export function PaneToolbar({
   return (
     <div
       className={cn(
-        "flex h-14 shrink-0 items-center justify-center gap-4 border-b border-border",
+        "flex h-14 shrink-0 items-center justify-center gap-4",
         className,
       )}
     >

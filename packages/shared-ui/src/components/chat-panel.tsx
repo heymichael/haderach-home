@@ -200,7 +200,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           )}
         </div>
 
-        <div className="flex items-end gap-2 border-t p-4">
+        <div className="flex items-end gap-2 p-4">
           <textarea
             ref={textareaRef}
             value={input}

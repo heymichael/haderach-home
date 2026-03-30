@@ -78,11 +78,16 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
     onSelectionChange(items.map((i) => i.id))
   }
 
-  const summaryText = allSelected
-    ? "All"
-    : selectedInItems === 0
-      ? "None"
-      : "Multiple"
+  const summaryText = React.useMemo(() => {
+    if (allSelected) return "All"
+    if (selectedInItems === 0) return "None"
+    if (selectedInItems === 1) {
+      const selectedSet = new Set(selectedIds)
+      const match = items.find((i) => selectedSet.has(i.id))
+      return match?.label ?? "Multiple"
+    }
+    return "Multiple"
+  }, [allSelected, selectedInItems, selectedIds, items])
 
   return (
     <div ref={containerRef} data-slot="multi-select" className={cn("relative", className)}>

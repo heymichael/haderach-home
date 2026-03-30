@@ -19,7 +19,14 @@ describe('MultiSelect', () => {
     expect(screen.getByText('None')).toBeInTheDocument()
   })
 
-  it('shows "Multiple" when some items are selected', () => {
+  it('shows item label when exactly one item is selected', () => {
+    render(
+      <MultiSelect items={items} selectedIds={['2']} onSelectionChange={() => {}} />,
+    )
+    expect(screen.getByText('Beta')).toBeInTheDocument()
+  })
+
+  it('shows "Multiple" when more than one item is selected', () => {
     render(
       <MultiSelect items={items} selectedIds={['1', '3']} onSelectionChange={() => {}} />,
     )
@@ -68,7 +75,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={['1']} onSelectionChange={onChange} />,
     )
 
-    await user.click(screen.getByText('Multiple'))
+    await user.click(screen.getByText('Alpha'))
     await user.click(screen.getByText('Beta'))
 
     expect(onChange).toHaveBeenCalledWith(['1', '2'])
@@ -107,7 +114,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={['1']} onSelectionChange={onChange} />,
     )
 
-    await user.click(screen.getByText('Multiple'))
+    await user.click(screen.getByText('Alpha'))
     await user.type(screen.getByPlaceholderText('Search…'), 'eta')
     await user.click(screen.getByText('Select all'))
 

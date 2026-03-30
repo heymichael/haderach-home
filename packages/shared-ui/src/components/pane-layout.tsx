@@ -66,10 +66,10 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
         <div
           className={cn(
             "flex flex-col overflow-hidden transition-[width,flex] duration-200",
-            chatOnly && "w-[30%]",
+            chatOnly && "flex-1",
             bothOpen && "w-[30%] shrink-0",
             detailOnly && "hidden",
-            !chatOpen && !detailPane && "w-[30%]",
+            !chatOpen && !detailPane && "hidden",
           )}
         >
           {chatContent}
@@ -87,8 +87,8 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
           className={cn(
             "flex flex-col overflow-hidden transition-[width,flex] duration-200",
             (bothOpen || detailOnly) && "flex-1",
-            chatOnly && "flex-1",
-            !chatOpen && !detailPane && "flex-1",
+            chatOnly && "hidden",
+            !chatOpen && !detailPane && "hidden",
           )}
         >
           {/* Analytics — always mounted, hidden when not active */}

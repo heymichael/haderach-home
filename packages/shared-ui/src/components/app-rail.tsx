@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
 } from "./ui/dropdown-menu.tsx"
 import type { NavApp } from "../auth/app-catalog.ts"
+import { usePrefetchApps } from "../hooks/use-prefetch-apps.ts"
 import {
   Truck,
   BarChart3,
@@ -130,36 +131,52 @@ export function AppRail({
   className,
 }: AppRailProps) {
   const railApps = apps.filter((a) => a.railEnabled)
+  usePrefetchApps(railApps, activeAppId)
 
   return (
     <nav
       className={cn(
-        "flex h-screen flex-col border-r border-chrome-border bg-chrome-bg transition-[width] duration-200 ease-in-out",
+        "flex h-screen flex-col overflow-hidden border-r border-chrome-border bg-chrome-bg transition-[width] duration-200 ease-in-out",
         expanded ? "w-[220px]" : "w-20",
         className,
       )}
     >
       {/* Logo + toggle */}
-      <div className="flex h-16 items-center gap-2 px-4">
-        <a href="/" className="flex shrink-0 items-center">
+      <div className="flex h-14 shrink-0 items-center">
+        {/* Logo column — fixed at collapsed rail width so the logo never shifts */}
+        <div className="flex w-20 shrink-0 items-center justify-center">
           {expanded ? (
-            <img
-              className="h-8 w-auto shrink-0"
-              src="/assets/landing/logo_lockup.svg"
-              alt="Haderach"
-            />
+            <a href="/">
+              <img className="h-9 w-9 shrink-0" src="/assets/landing/logo.svg" alt="Haderach" />
+            </a>
           ) : (
-            <img
-              className="h-8 w-8 shrink-0"
-              src="/assets/landing/logo.svg"
-              alt="Haderach"
-            />
+            <button
+              onClick={onToggle}
+              className="group relative inline-flex items-center rounded-md hover:bg-chrome-hover"
+              aria-label="Expand sidebar"
+            >
+              <img
+                className="h-9 w-9 shrink-0 transition-opacity duration-150 group-hover:opacity-0"
+                src="/assets/landing/logo.svg"
+                alt="Haderach"
+              />
+              <PanelLeft className="absolute inset-0 m-auto h-5 w-5 text-chrome-text-strong opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
+            </button>
           )}
-        </a>
+        </div>
+        <span className={cn(
+          "-ml-3 whitespace-nowrap text-[0.95rem] font-semibold uppercase tracking-[0.04em] text-[#03666c] transition-opacity duration-200",
+          expanded ? "opacity-100" : "opacity-0",
+        )}>
+          Haderach
+        </span>
         <button
           onClick={onToggle}
-          className="ml-auto inline-flex items-center justify-center rounded-md p-2 text-chrome-text-strong hover:bg-chrome-hover hover:text-chrome-text-hover"
-          aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+          className={cn(
+            "ml-auto mr-3 inline-flex shrink-0 items-center justify-center rounded-md p-2 text-chrome-text-strong hover:bg-chrome-hover hover:text-chrome-text-hover",
+            !expanded && "hidden",
+          )}
+          aria-label="Collapse sidebar"
         >
           <PanelLeft className="h-5 w-5" />
         </button>
@@ -176,8 +193,7 @@ export function AppRail({
               key={app.id}
               href={app.path}
               className={cn(
-                "group relative flex items-center rounded-md py-3 text-base font-medium transition-colors",
-                expanded ? "gap-3 px-3" : "justify-center px-0",
+                "group relative flex items-center gap-3 whitespace-nowrap rounded-md px-3 py-3 text-base font-medium transition-colors",
                 isActive
                   ? "text-chrome-text-hover"
                   : "text-chrome-text-muted hover:bg-chrome-hover hover:text-chrome-text-hover",
@@ -186,10 +202,8 @@ export function AppRail({
               {isActive && (
                 <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-sm bg-chrome-text-hover" />
               )}
-              <Icon className={cn("shrink-0", expanded ? "h-6 w-6" : "h-7 w-7")} />
-              {expanded && (
-                <span className="truncate">{app.label}</span>
-              )}
+              <Icon className="h-6 w-6 shrink-0" />
+              <span className="truncate">{app.label}</span>
             </a>
           )
         })}
@@ -197,14 +211,11 @@ export function AppRail({
 
       {/* User avatar */}
       {userEmail && (
-        <div className="border-t border-chrome-border px-3 py-4">
+        <div className="px-3 py-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-md px-3 py-1.5 outline-none hover:bg-chrome-hover focus-visible:ring-2 focus-visible:ring-chrome-text-muted",
-                  !expanded && "justify-center px-0",
-                )}
+                className="flex w-full items-center gap-3 whitespace-nowrap rounded-md px-3 py-1.5 outline-none hover:bg-chrome-hover focus-visible:ring-2 focus-visible:ring-chrome-text-muted"
                 aria-label="User menu"
               >
                 <AvatarImage
@@ -212,16 +223,14 @@ export function AppRail({
                   photoURL={userPhotoURL}
                   displayName={userDisplayName}
                 />
-                {expanded && (
-                  <div className="flex flex-col gap-0 overflow-hidden text-left">
-                    <span className="truncate text-xs font-medium text-chrome-text-strong">
-                      {getFirstName(userDisplayName)}
-                    </span>
-                    <span className="truncate text-[0.65rem] text-chrome-text-muted">
-                      Beta Plan
-                    </span>
-                  </div>
-                )}
+                <div className="flex flex-col gap-0 overflow-hidden text-left">
+                  <span className="truncate text-xs font-medium text-chrome-text-strong">
+                    {getFirstName(userDisplayName)}
+                  </span>
+                  <span className="truncate text-[0.65rem] text-chrome-text-muted">
+                    Beta Plan
+                  </span>
+                </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

@@ -98,6 +98,7 @@ export {
 } from "./components/ui/chart.tsx"
 export type { ChartConfig } from "./components/ui/chart.tsx"
 export { useIsMobile } from "./hooks/use-mobile.ts"
+export { usePrefetchApps } from "./hooks/use-prefetch-apps.ts"
 export { GlobalNav } from "./components/GlobalNav.tsx"
 export type { GlobalNavProps } from "./components/GlobalNav.tsx"
 export type { NavApp } from "./auth/app-catalog.ts"

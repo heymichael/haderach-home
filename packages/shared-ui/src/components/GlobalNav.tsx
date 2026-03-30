@@ -10,6 +10,7 @@ import {
   DropdownMenuLabel,
 } from "./ui/dropdown-menu.tsx"
 import type { NavApp } from "../auth/app-catalog.ts"
+import { usePrefetchApps } from "../hooks/use-prefetch-apps.ts"
 
 export interface GlobalNavProps {
   apps?: NavApp[]
@@ -182,6 +183,7 @@ export function GlobalNav({
   className,
 }: GlobalNavProps) {
   const hasApps = apps && apps.length > 0
+  usePrefetchApps(apps ?? [], activeAppId)
 
   return (
     <header

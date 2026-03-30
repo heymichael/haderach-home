@@ -13,6 +13,7 @@ interface MultiSelectProps<T extends MultiSelectItem = MultiSelectItem> {
   onSelectionChange: (ids: string[]) => void
   searchPlaceholder?: string
   renderItem?: (item: T) => React.ReactNode
+  variant?: "default" | "underline"
   className?: string
 }
 
@@ -22,6 +23,7 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
   onSelectionChange,
   searchPlaceholder = "Search…",
   renderItem,
+  variant = "default",
   className,
 }: MultiSelectProps<T>) {
   const [open, setOpen] = React.useState(false)
@@ -86,7 +88,10 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
     <div ref={containerRef} data-slot="multi-select" className={cn("relative", className)}>
       <div
         className={cn(
-          "flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-xs transition-colors",
+          "flex w-full items-center bg-transparent text-xs transition-colors",
+          variant === "underline"
+            ? "h-8 border-b border-border px-0 pb-1"
+            : "h-9 rounded-md border border-input px-3 py-1 shadow-xs",
           selectedInItems === 0 && "text-muted-foreground",
         )}
       >

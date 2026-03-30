@@ -134,7 +134,7 @@ export function DataTable<TData>({
           </div>
         )}
 
-        <div className="flex-1 min-h-0 overflow-auto">
+        <div className="flex-1 min-h-0 overflow-auto px-4">
           <Table className="table-fixed" style={{ minWidth: table.getTotalSize() }}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

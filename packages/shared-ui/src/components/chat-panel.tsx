@@ -124,8 +124,10 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
 
   return (
     <div className={cn(
-      "flex flex-col bg-background",
-      isPanel ? "h-full w-full" : "h-full w-[25rem] border-l border-border",
+      "flex flex-col",
+      isPanel
+        ? "m-2 flex-1 min-h-0 rounded-xl border border-border bg-card shadow-sm"
+        : "h-full w-[25rem] border-l border-border bg-background",
     )}>
         {!isPanel && (
           <div className="flex h-12 items-center gap-2 border-b px-4">

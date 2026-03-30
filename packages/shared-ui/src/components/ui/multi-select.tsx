@@ -87,7 +87,7 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-surface shadow-lg">
+        <div className="absolute z-50 mt-1 min-w-full w-max max-w-[280px] rounded-md border border-border bg-surface shadow-lg">
           <div className="flex items-center gap-2 border-b border-border px-3 py-2">
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
@@ -131,11 +131,6 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
                 </>
               )}
             </div>
-            {selectedIds.length > 0 && (
-              <span className="text-xs text-muted-foreground">
-                {selectedIds.length} selected
-              </span>
-            )}
           </div>
 
           <div className="max-h-56 overflow-y-auto py-1">
@@ -160,7 +155,7 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
                         type="button"
                         onClick={() => toggleItem(item.id)}
                         className={cn(
-                          "flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-accent/50 text-left",
+                          "flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-accent/50 text-left",
                           selected && "bg-accent/30",
                         )}
                       >

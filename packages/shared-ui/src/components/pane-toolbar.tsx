@@ -12,7 +12,7 @@ interface PaneDef {
 
 const PANE_DEFS: PaneDef[] = [
   { id: "chat", label: "Chat", icon: MessageSquare },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "analytics", label: "Dashboard", icon: BarChart3 },
   { id: "data", label: "Data", icon: Database },
 ]
 
@@ -30,7 +30,7 @@ export function PaneToolbar({
   return (
     <div
       className={cn(
-        "flex h-14 shrink-0 items-center justify-center gap-2 border-b border-border",
+        "flex h-14 shrink-0 items-center justify-center gap-4 border-b border-border",
         className,
       )}
     >
@@ -42,7 +42,7 @@ export function PaneToolbar({
             key={id}
             onClick={() => onPaneToggle(id)}
             className={cn(
-              "inline-flex items-center gap-2.5 rounded-md px-3.5 py-2 text-base font-medium transition-colors",
+              "inline-flex items-center justify-center rounded-md p-2.5 transition-colors",
               isActive
                 ? "bg-accent text-chrome-text-hover"
                 : "text-chrome-text-muted hover:bg-chrome-hover hover:text-chrome-text-hover",
@@ -51,11 +51,6 @@ export function PaneToolbar({
             aria-pressed={isActive}
           >
             <Icon className="h-5 w-5 shrink-0" />
-            {isActive && (
-              <span className="animate-in fade-in slide-in-from-left-1 duration-150">
-                {label}
-              </span>
-            )}
           </button>
         )
       })}

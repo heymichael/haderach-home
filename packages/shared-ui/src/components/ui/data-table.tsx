@@ -114,7 +114,7 @@ export function DataTable<TData>({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search…"
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
             />
             {search && (
               <>

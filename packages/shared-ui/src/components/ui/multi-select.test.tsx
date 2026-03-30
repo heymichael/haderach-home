@@ -12,30 +12,25 @@ const items: MultiSelectItem[] = [
 ]
 
 describe('MultiSelect', () => {
-  it('renders placeholder when nothing selected', () => {
+  it('renders "None" when nothing selected', () => {
     render(
       <MultiSelect items={items} selectedIds={[]} onSelectionChange={() => {}} />,
     )
-    expect(screen.getByText('Select items…')).toBeInTheDocument()
+    expect(screen.getByText('None')).toBeInTheDocument()
   })
 
-  it('renders custom placeholder', () => {
-    render(
-      <MultiSelect
-        items={items}
-        selectedIds={[]}
-        onSelectionChange={() => {}}
-        placeholder="Pick departments"
-      />,
-    )
-    expect(screen.getByText('Pick departments')).toBeInTheDocument()
-  })
-
-  it('shows selection count when items are selected', () => {
+  it('shows "Multiple" when some items are selected', () => {
     render(
       <MultiSelect items={items} selectedIds={['1', '3']} onSelectionChange={() => {}} />,
     )
-    expect(screen.getByText('2 selected')).toBeInTheDocument()
+    expect(screen.getByText('Multiple')).toBeInTheDocument()
+  })
+
+  it('shows "All" when all items are selected', () => {
+    render(
+      <MultiSelect items={items} selectedIds={['1', '2', '3', '4']} onSelectionChange={() => {}} />,
+    )
+    expect(screen.getByText('All')).toBeInTheDocument()
   })
 
   it('opens popover on trigger click and shows all items', async () => {
@@ -44,7 +39,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={[]} onSelectionChange={() => {}} />,
     )
 
-    await user.click(screen.getByText('Select items…'))
+    await user.click(screen.getByText('None'))
 
     expect(screen.getByText('Alpha')).toBeInTheDocument()
     expect(screen.getByText('Beta')).toBeInTheDocument()
@@ -58,7 +53,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={[]} onSelectionChange={() => {}} />,
     )
 
-    await user.click(screen.getByText('Select items…'))
+    await user.click(screen.getByText('None'))
     await user.type(screen.getByPlaceholderText('Search…'), 'alp')
 
     expect(screen.getByText('Alpha')).toBeInTheDocument()
@@ -73,7 +68,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={['1']} onSelectionChange={onChange} />,
     )
 
-    await user.click(screen.getByText('1 selected'))
+    await user.click(screen.getByText('Multiple'))
     await user.click(screen.getByText('Beta'))
 
     expect(onChange).toHaveBeenCalledWith(['1', '2'])
@@ -86,7 +81,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={['1', '2']} onSelectionChange={onChange} />,
     )
 
-    await user.click(screen.getByText('2 selected'))
+    await user.click(screen.getByText('Multiple'))
     await user.click(screen.getByText('Alpha'))
 
     expect(onChange).toHaveBeenCalledWith(['2'])
@@ -99,7 +94,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={[]} onSelectionChange={onChange} />,
     )
 
-    await user.click(screen.getByText('Select items…'))
+    await user.click(screen.getByText('None'))
     await user.click(screen.getByText('Select all'))
 
     expect(onChange).toHaveBeenCalledWith(['1', '2', '3', '4'])
@@ -112,7 +107,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={['1']} onSelectionChange={onChange} />,
     )
 
-    await user.click(screen.getByText('1 selected'))
+    await user.click(screen.getByText('Multiple'))
     await user.type(screen.getByPlaceholderText('Search…'), 'eta')
     await user.click(screen.getByText('Select all'))
 
@@ -130,10 +125,9 @@ describe('MultiSelect', () => {
       />,
     )
 
-    await user.click(screen.getByText('4 selected'))
+    await user.click(screen.getByText('All'))
     await user.type(screen.getByPlaceholderText('Search…'), 'eta')
-    // With "eta" filter, only Beta is visible and it's selected, so button says "Clear all"
-    await user.click(screen.getByText('Clear all'))
+    await user.click(screen.getByText('Clear'))
 
     expect(onChange).toHaveBeenCalledWith(['1', '3', '4'])
   })
@@ -144,7 +138,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={items} selectedIds={[]} onSelectionChange={() => {}} />,
     )
 
-    await user.click(screen.getByText('Select items…'))
+    await user.click(screen.getByText('None'))
     await user.type(screen.getByPlaceholderText('Search…'), 'zzz')
 
     expect(screen.getByText('No results')).toBeInTheDocument()
@@ -161,7 +155,7 @@ describe('MultiSelect', () => {
       />,
     )
 
-    await user.click(screen.getByText('Select items…'))
+    await user.click(screen.getByText('None'))
 
     expect(screen.getByText('** Alpha **')).toBeInTheDocument()
     expect(screen.getByText('** Beta **')).toBeInTheDocument()

@@ -11,7 +11,6 @@ interface MultiSelectProps<T extends MultiSelectItem = MultiSelectItem> {
   items: T[]
   selectedIds: string[]
   onSelectionChange: (ids: string[]) => void
-  placeholder?: string
   searchPlaceholder?: string
   renderItem?: (item: T) => React.ReactNode
   className?: string
@@ -21,7 +20,6 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
   items,
   selectedIds,
   onSelectionChange,
-  placeholder = "Select items…",
   searchPlaceholder = "Search…",
   renderItem,
   className,

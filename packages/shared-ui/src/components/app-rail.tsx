@@ -10,6 +10,7 @@ import {
 } from "./ui/dropdown-menu.tsx"
 import type { NavApp } from "../auth/app-catalog.ts"
 import { usePrefetchApps } from "../hooks/use-prefetch-apps.ts"
+import { useBranding } from "../lib/branding.ts"
 import {
   Truck,
   BarChart3,
@@ -124,7 +125,16 @@ export function AppRail({
   className,
 }: AppRailProps) {
   const railApps = apps.filter((a) => a.railEnabled)
-  usePrefetchApps(railApps, activeAppId)
+  usePrefetchApps(apps, activeAppId)
+  const branding = useBranding()
+
+  const lockupMode = branding?.lockupMode ?? "none"
+  const logoSrc = branding?.logoSvg
+    ? `data:image/svg+xml;utf8,${encodeURIComponent(branding.logoSvg)}`
+    : "/assets/landing/logo.svg"
+  const lockupSrc = branding?.lockupSvg
+    ? `data:image/svg+xml;utf8,${encodeURIComponent(branding.lockupSvg)}`
+    : null
 
   return (
     <nav
@@ -136,33 +146,43 @@ export function AppRail({
     >
       {/* Logo + toggle */}
       <div className="flex h-14 shrink-0 items-center">
-        {/* Logo column — fixed at collapsed rail width so the logo never shifts */}
-        <div className="flex w-20 shrink-0 items-center justify-center">
-          {expanded ? (
-            <a href="/">
-              <img className="h-9 w-9 shrink-0" src="/assets/landing/logo.svg" alt="Haderach" />
-            </a>
-          ) : (
-            <button
-              onClick={onToggle}
-              className="group relative inline-flex items-center rounded-md hover:bg-chrome-hover"
-              aria-label="Expand sidebar"
-            >
-              <img
-                className="h-9 w-9 shrink-0 transition-opacity duration-150 group-hover:opacity-0"
-                src="/assets/landing/logo.svg"
-                alt="Haderach"
-              />
-              <PanelLeft className="absolute inset-0 m-auto h-5 w-5 text-chrome-text-strong opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
-            </button>
-          )}
-        </div>
-        <span className={cn(
-          "-ml-3 whitespace-nowrap text-[0.95rem] font-semibold uppercase tracking-[0.04em] text-[#03666c] transition-opacity duration-200",
-          expanded ? "opacity-100" : "opacity-0",
-        )}>
-          Haderach
-        </span>
+        {expanded && lockupMode === "swap" && lockupSrc ? (
+          /* Lockup spans beyond the logo column; h-[28px] keeps the "A" the
+             same pixel height as the h-9 standalone logo (282/370 ≈ 282/290). */
+          <a href="/" className="flex shrink-0 items-center pl-8">
+            <img className="h-[28px] shrink-0" src={lockupSrc} alt="Haderach" />
+          </a>
+        ) : (
+          /* Logo column — fixed at collapsed rail width so the logo never shifts */
+          <div className="flex w-20 shrink-0 items-center justify-center">
+            {expanded ? (
+              <a href="/">
+                <img className="h-9 w-9 shrink-0" src={logoSrc} alt="Haderach" />
+              </a>
+            ) : (
+              <button
+                onClick={onToggle}
+                className="group relative inline-flex items-center rounded-md hover:bg-chrome-hover"
+                aria-label="Expand sidebar"
+              >
+                <img
+                  className="h-9 w-9 shrink-0 transition-opacity duration-150 group-hover:opacity-0"
+                  src={logoSrc}
+                  alt="Haderach"
+                />
+                <PanelLeft className="absolute inset-0 m-auto h-5 w-5 text-chrome-text-strong opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
+              </button>
+            )}
+          </div>
+        )}
+        {lockupMode === "text" && (
+          <span className={cn(
+            "-ml-3 whitespace-nowrap text-[0.95rem] font-semibold uppercase tracking-[0.04em] text-[#03666c] transition-opacity duration-200",
+            expanded ? "opacity-100" : "opacity-0",
+          )}>
+            Haderach
+          </span>
+        )}
         <button
           onClick={onToggle}
           className={cn(

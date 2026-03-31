@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react"
 import Markdown from "react-markdown"
-import { Send, Loader2, PanelRightClose, RotateCcw } from "lucide-react"
+import { Send, Loader2, PanelRightClose, RotateCcw, Download } from "lucide-react"
 
 import { cn } from "../lib/utils.ts"
 import { agentFetch } from "../lib/agent-fetch.ts"
@@ -18,6 +18,7 @@ export interface ChatMessage {
   content: string
   hidden?: boolean
   choices?: ChatChoice[]
+  downloads?: ChatDownload[]
 }
 
 export interface ChatPendingAction {
@@ -30,11 +31,18 @@ interface ChatDisambiguation {
   original_args?: Record<string, unknown>
 }
 
+interface ChatDownload {
+  filename: string
+  content: string
+  mime: string
+}
+
 interface ChatResponse {
   reply: string
   tool_calls_executed: string[]
   pending_actions?: ChatPendingAction[]
   disambiguation?: ChatDisambiguation | null
+  downloads?: ChatDownload[]
 }
 
 export interface ChatPanelHandle {
@@ -121,6 +129,9 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           meta: data.disambiguation?.original_args ?? undefined,
         }))
       }
+      if (data.downloads?.length) {
+        assistantMsg.downloads = data.downloads
+      }
       setMessages((prev) => [...prev, assistantMsg])
 
       if (data.pending_actions?.length) {
@@ -159,6 +170,18 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       { role: "user", content: instruction, hidden: true },
     ])
   }, [sendMessages])
+
+  const triggerDownload = useCallback((dl: ChatDownload) => {
+    const blob = new Blob([dl.content], { type: dl.mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = dl.filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, [])
 
   const isPanel = mode === "panel"
 
@@ -230,6 +253,21 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
                         >
                           <span className="size-3 shrink-0 rounded-full border-2 border-primary" />
                           {c.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {m.downloads && m.downloads.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {m.downloads.map((dl) => (
+                        <button
+                          key={dl.filename}
+                          type="button"
+                          onClick={() => triggerDownload(dl)}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          {dl.filename}
                         </button>
                       ))}
                     </div>

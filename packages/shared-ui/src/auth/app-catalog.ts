@@ -7,9 +7,9 @@ export interface NavApp {
 }
 
 export const APP_CATALOG: NavApp[] = [
-  { id: "card", label: "Card", path: "/card/", icon: "credit-card", railEnabled: false },
   { id: "vendors", label: "Vendors", path: "/vendors/", icon: "truck", railEnabled: true },
   { id: "stocks", label: "Commodities", path: "/stocks/", icon: "layers", railEnabled: true },
+  { id: "card", label: "Card", path: "/card/", icon: "credit-card", railEnabled: false },
 ]
 
 export const APP_GRANTING_ROLES: Record<string, string[]> = {
@@ -19,8 +19,8 @@ export const APP_GRANTING_ROLES: Record<string, string[]> = {
 }
 
 export const ADMIN_CATALOG: NavApp[] = [
-  { id: "system_administration", label: "System", path: "/admin/system/" },
   { id: "vendor_administration", label: "Vendors", path: "/admin/vendors/" },
+  { id: "system_administration", label: "System", path: "/admin/system/" },
 ]
 
 export const ADMIN_GRANTING_ROLES: Record<string, string[]> = {

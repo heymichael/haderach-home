@@ -138,6 +138,8 @@ export {
   DialogDescription,
 } from "./components/ui/dialog.tsx"
 export { agentFetch } from "./lib/agent-fetch.ts"
+export { fetchBranding, useBranding } from "./lib/branding.ts"
+export type { Branding, LockupMode } from "./lib/branding.ts"
 export { ChatPanel } from "./components/chat-panel.tsx"
 export type { ChatPanelHandle, ChatPanelProps, ChatMessage, ChatChoice, ChatPendingAction } from "./components/chat-panel.tsx"
 export { ChatToggle } from "./components/chat-toggle.tsx"

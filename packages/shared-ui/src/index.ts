@@ -133,7 +133,7 @@ export {
 } from "./components/ui/dialog.tsx"
 export { agentFetch } from "./lib/agent-fetch.ts"
 export { ChatPanel } from "./components/chat-panel.tsx"
-export type { ChatPanelHandle, ChatPanelProps, ChatMessage, ChatPendingAction } from "./components/chat-panel.tsx"
+export type { ChatPanelHandle, ChatPanelProps, ChatMessage, ChatChoice, ChatPendingAction } from "./components/chat-panel.tsx"
 export { ChatToggle } from "./components/chat-toggle.tsx"
 export type { ChatToggleProps } from "./components/chat-toggle.tsx"
 export { TagBadge, tagBadgeVariants } from "./components/ui/tag-badge.tsx"

@@ -94,6 +94,7 @@ export function DataTable<TData>({
     })
   }, [data, enableSearch, search, accessorKeys])
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table is not React Compiler compatible
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -102,11 +103,11 @@ export function DataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    onColumnFiltersChange: setColumnFilters,
+    ...(enableColumnFilters && { onColumnFiltersChange: setColumnFilters }),
     onSortingChange: setSorting,
     onColumnSizingChange: setColumnSizing,
     columnResizeMode: "onChange",
-    state: { sorting, columnSizing, columnFilters },
+    state: { sorting, columnSizing, ...(enableColumnFilters && { columnFilters }) },
     getRowId,
   })
 

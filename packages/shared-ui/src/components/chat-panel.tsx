@@ -7,10 +7,17 @@ import { agentFetch } from "../lib/agent-fetch.ts"
 import { Button } from "./ui/button.tsx"
 import { Separator } from "./ui/separator.tsx"
 
+export interface ChatChoice {
+  id: string
+  label: string
+  meta?: Record<string, unknown>
+}
+
 export interface ChatMessage {
   role: "user" | "assistant"
   content: string
   hidden?: boolean
+  choices?: ChatChoice[]
 }
 
 export interface ChatPendingAction {
@@ -18,10 +25,16 @@ export interface ChatPendingAction {
   [key: string]: unknown
 }
 
+interface ChatDisambiguation {
+  candidates: Array<{ id: string; name: string }>
+  original_args?: Record<string, unknown>
+}
+
 interface ChatResponse {
   reply: string
   tool_calls_executed: string[]
-  pending_action?: ChatPendingAction | null
+  pending_actions?: ChatPendingAction[]
+  disambiguation?: ChatDisambiguation | null
 }
 
 export interface ChatPanelHandle {
@@ -35,7 +48,7 @@ export interface ChatPanelProps {
   appContext: string
   getIdToken?: () => Promise<string>
   onToolResult?: (toolNames: string[]) => void
-  onPendingAction?: (action: ChatPendingAction) => void
+  onPendingAction?: (actions: ChatPendingAction[]) => void
   title?: string
   disabled?: boolean
   placeholderMessage?: string
@@ -71,22 +84,20 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     if (open) textareaRef.current?.focus()
   }, [open])
 
-  const send = useCallback(async () => {
-    const text = input.trim()
-    if (!text || loading || disabled || !getIdToken) return
+  const sendMessages = useCallback(async (outgoing: ChatMessage[]) => {
+    if (loading || disabled || !getIdToken) return
 
-    const userMsg: ChatMessage = { role: "user", content: text }
-    const updated = [...messages, userMsg]
-    setMessages(updated)
-    setInput("")
+    setMessages((prev) => [...prev, ...outgoing])
     setLoading(true)
+
+    const allMessages = [...messages, ...outgoing]
 
     try {
       const resp = await agentFetch("/chat", getIdToken, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: updated.map((m) => ({ role: m.role, content: m.content })),
+          messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
           context: { app: appContext },
         }),
       })
@@ -101,10 +112,19 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       }
 
       const data: ChatResponse = await resp.json()
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }])
 
-      if (data.pending_action) {
-        onPendingAction?.(data.pending_action)
+      const assistantMsg: ChatMessage = { role: "assistant", content: data.reply }
+      if (data.disambiguation?.candidates?.length) {
+        assistantMsg.choices = data.disambiguation.candidates.map((c) => ({
+          id: c.id,
+          label: c.name,
+          meta: data.disambiguation?.original_args ?? undefined,
+        }))
+      }
+      setMessages((prev) => [...prev, assistantMsg])
+
+      if (data.pending_actions?.length) {
+        onPendingAction?.(data.pending_actions)
       } else if (data.tool_calls_executed.length > 0) {
         onToolResult?.(data.tool_calls_executed)
       }
@@ -116,7 +136,29 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     } finally {
       setLoading(false)
     }
-  }, [input, loading, disabled, messages, getIdToken, appContext, onToolResult, onPendingAction])
+  }, [loading, disabled, messages, getIdToken, appContext, onToolResult, onPendingAction])
+
+  const send = useCallback(() => {
+    const text = input.trim()
+    if (!text) return
+    setInput("")
+    sendMessages([{ role: "user", content: text }])
+  }, [input, sendMessages])
+
+  const handleChoiceClick = useCallback((choice: ChatChoice) => {
+    setMessages((prev) => prev.map((m) =>
+      m.choices ? { ...m, choices: undefined } : m
+    ))
+    const fieldArgs = choice.meta ?? {}
+    const argsStr = Object.entries(fieldArgs)
+      .map(([k, v]) => `${k}="${v}"`)
+      .join(", ")
+    const instruction = `Call modify_vendor with identifier="${choice.id}"${argsStr ? `, ${argsStr}` : ""}. Use this exact UUID as the identifier.`
+    sendMessages([
+      { role: "user", content: choice.label },
+      { role: "user", content: instruction, hidden: true },
+    ])
+  }, [sendMessages])
 
   const isPanel = mode === "panel"
 
@@ -176,17 +218,35 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
               )}
             >
               {m.role === "assistant" ? (
-                <Markdown
-                  components={{
-                    a: ({ href, children }) => (
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="underline text-primary">
-                        {children}
-                      </a>
-                    ),
-                  }}
-                >
-                  {m.content}
-                </Markdown>
+                <>
+                  <Markdown
+                    components={{
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="underline text-primary">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {m.content}
+                  </Markdown>
+                  {m.choices && m.choices.length > 0 && (
+                    <div className="mt-2 flex flex-col gap-1">
+                      {m.choices.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => handleChoiceClick(c)}
+                          disabled={loading}
+                          className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                        >
+                          <span className="size-3 shrink-0 rounded-full border-2 border-primary" />
+                          {c.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : (
                 m.content
               )}
@@ -200,7 +260,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           )}
         </div>
 
-        <div className="flex items-end gap-2 p-4">
+        <div className="relative px-3 pb-3">
           <textarea
             ref={textareaRef}
             value={input}
@@ -214,9 +274,15 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
             placeholder="Message the agent…"
             disabled={loading || disabled}
             rows={5}
-            className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
           />
-          <Button size="icon" variant="ghost" disabled={loading || disabled || !input.trim()} onClick={send}>
+          <Button
+            size="icon"
+            variant="ghost"
+            disabled={loading || disabled || !input.trim()}
+            onClick={send}
+            className="absolute bottom-5 right-5 size-7"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>

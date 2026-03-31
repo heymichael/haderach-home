@@ -3,9 +3,12 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   flexRender,
 } from "@tanstack/react-table"
-import type { ColumnDef, SortingState, ColumnSizingState } from "@tanstack/react-table"
+import type { ColumnDef, SortingState, ColumnSizingState, ColumnFiltersState } from "@tanstack/react-table"
 import { Download, Search, X } from "lucide-react"
 
 import { cn } from "../../lib/utils.ts"
@@ -52,6 +55,7 @@ interface DataTableProps<TData> {
   emptyMessage?: string
   pinFirstColumn?: boolean
   enableSearch?: boolean
+  enableColumnFilters?: boolean
   getRowId?: (row: TData) => string
 }
 
@@ -62,10 +66,12 @@ export function DataTable<TData>({
   emptyMessage = "No results.",
   pinFirstColumn = false,
   enableSearch = false,
+  enableColumnFilters = false,
   getRowId,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [search, setSearch] = useState("")
 
   const accessorKeys = useMemo(
@@ -88,15 +94,20 @@ export function DataTable<TData>({
     })
   }, [data, enableSearch, search, accessorKeys])
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table is not React Compiler compatible
   const table = useReactTable({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    ...(enableColumnFilters && { onColumnFiltersChange: setColumnFilters }),
     onSortingChange: setSorting,
     onColumnSizingChange: setColumnSizing,
     columnResizeMode: "onChange",
-    state: { sorting, columnSizing },
+    state: { sorting, columnSizing, ...(enableColumnFilters && { columnFilters }) },
     getRowId,
   })
 

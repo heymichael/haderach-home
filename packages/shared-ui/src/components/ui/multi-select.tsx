@@ -96,7 +96,7 @@ function MultiSelect<T extends MultiSelectItem = MultiSelectItem>({
           "flex w-full items-center bg-transparent text-xs transition-colors",
           variant === "underline"
             ? "h-8 border-b border-border px-0 pb-1"
-            : "h-9 rounded-md border border-input px-3 py-1 shadow-xs",
+            : "h-8 px-0",
           selectedInItems === 0 && "text-muted-foreground",
         )}
       >

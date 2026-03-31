@@ -85,6 +85,12 @@ export {
   TableCaption,
 } from "./components/ui/table.tsx"
 export { DataTable } from "./components/ui/data-table.tsx"
+export { FilterableHeader, setFilterFn } from "./components/ui/filterable-header.tsx"
+export type { FilterableHeaderProps } from "./components/ui/filterable-header.tsx"
+export { DetailRow, EditRow, SelectRow, CheckboxRow } from "./components/ui/form-rows.tsx"
+export type { DetailRowProps, EditRowProps, SelectRowProps, CheckboxRowProps } from "./components/ui/form-rows.tsx"
+export { formatCurrency, formatMonthHeader, pivotLongToWide } from "./lib/pivot.ts"
+export type { PivotRow, PivotInput } from "./lib/pivot.ts"
 export type { ColumnDef } from "@tanstack/react-table"
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs.tsx"
 export {

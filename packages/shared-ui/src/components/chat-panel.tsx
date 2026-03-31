@@ -33,7 +33,7 @@ interface ChatDisambiguation {
 interface ChatResponse {
   reply: string
   tool_calls_executed: string[]
-  pending_action?: ChatPendingAction | null
+  pending_actions?: ChatPendingAction[]
   disambiguation?: ChatDisambiguation | null
 }
 
@@ -48,7 +48,7 @@ export interface ChatPanelProps {
   appContext: string
   getIdToken?: () => Promise<string>
   onToolResult?: (toolNames: string[]) => void
-  onPendingAction?: (action: ChatPendingAction) => void
+  onPendingAction?: (actions: ChatPendingAction[]) => void
   title?: string
   disabled?: boolean
   placeholderMessage?: string
@@ -123,8 +123,8 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       }
       setMessages((prev) => [...prev, assistantMsg])
 
-      if (data.pending_action) {
-        onPendingAction?.(data.pending_action)
+      if (data.pending_actions?.length) {
+        onPendingAction?.(data.pending_actions)
       } else if (data.tool_calls_executed.length > 0) {
         onToolResult?.(data.tool_calls_executed)
       }

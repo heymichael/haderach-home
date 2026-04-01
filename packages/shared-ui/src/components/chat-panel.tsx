@@ -1,11 +1,19 @@
 import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react"
 import Markdown from "react-markdown"
-import { Send, Loader2, PanelRightClose, RotateCcw, Download } from "lucide-react"
+import { Send, Loader2, PanelRightClose, Download, Paperclip, X, ThumbsUp, ThumbsDown } from "lucide-react"
 
 import { cn } from "../lib/utils.ts"
 import { agentFetch } from "../lib/agent-fetch.ts"
 import { Button } from "./ui/button.tsx"
 import { Separator } from "./ui/separator.tsx"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "./ui/dialog.tsx"
 
 export interface ChatChoice {
   id: string
@@ -43,6 +51,7 @@ interface ChatResponse {
   pending_actions?: ChatPendingAction[]
   disambiguation?: ChatDisambiguation | null
   downloads?: ChatDownload[]
+  session_id?: string
 }
 
 export interface ChatPanelHandle {
@@ -77,8 +86,15 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
+  const [attachment, setAttachment] = useState<{ filename: string; content: string; mime: string } | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [feedbackMap, setFeedbackMap] = useState<Record<number, boolean>>({})
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
+  const [feedbackDialogSeq, setFeedbackDialogSeq] = useState<number>(0)
+  const [feedbackComment, setFeedbackComment] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle(ref, () => ({
     addMessage: (msg: ChatMessage) => setMessages((prev) => [...prev, msg]),
@@ -92,6 +108,17 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     if (open) textareaRef.current?.focus()
   }, [open])
 
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      setAttachment({ filename: file.name, content: reader.result as string, mime: file.type || "text/csv" })
+    }
+    reader.readAsText(file)
+    e.target.value = ""
+  }, [])
+
   const sendMessages = useCallback(async (outgoing: ChatMessage[]) => {
     if (loading || disabled || !getIdToken) return
 
@@ -101,13 +128,20 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     const allMessages = [...messages, ...outgoing]
 
     try {
+      const payload: Record<string, unknown> = {
+        messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
+        context: { app: appContext },
+      }
+      if (sessionId) {
+        payload.session_id = sessionId
+      }
+      if (attachment) {
+        payload.attachments = [attachment]
+      }
       const resp = await agentFetch("/chat", getIdToken, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
-          context: { app: appContext },
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (!resp.ok) {
@@ -120,6 +154,10 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       }
 
       const data: ChatResponse = await resp.json()
+
+      if (data.session_id) {
+        setSessionId(data.session_id)
+      }
 
       const assistantMsg: ChatMessage = { role: "assistant", content: data.reply }
       if (data.disambiguation?.candidates?.length) {
@@ -147,14 +185,16 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     } finally {
       setLoading(false)
     }
-  }, [loading, disabled, messages, getIdToken, appContext, onToolResult, onPendingAction])
+  }, [loading, disabled, messages, getIdToken, appContext, onToolResult, onPendingAction, attachment, sessionId])
 
   const send = useCallback(() => {
     const text = input.trim()
-    if (!text) return
+    if (!text && !attachment) return
+    const content = text || (attachment ? `Uploading ${attachment.filename}` : "")
     setInput("")
-    sendMessages([{ role: "user", content: text }])
-  }, [input, sendMessages])
+    setAttachment(null)
+    sendMessages([{ role: "user", content }])
+  }, [input, attachment, sendMessages])
 
   const handleChoiceClick = useCallback((choice: ChatChoice) => {
     setMessages((prev) => prev.map((m) =>
@@ -183,6 +223,47 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     URL.revokeObjectURL(url)
   }, [])
 
+  const clearChat = useCallback(() => {
+    setMessages([])
+    setSessionId(null)
+    setFeedbackMap({})
+  }, [])
+
+  const submitFeedback = useCallback(async (messageSeq: number, signal: boolean, comment?: string) => {
+    if (!sessionId || !getIdToken) return
+    try {
+      await agentFetch("/feedback", getIdToken, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          message_seq: messageSeq,
+          signal,
+          comment: comment || null,
+        }),
+      })
+    } catch {
+      // fire-and-forget; don't disrupt the chat experience
+    }
+  }, [sessionId, getIdToken])
+
+  const handleFeedback = useCallback((messageSeq: number, signal: boolean) => {
+    setFeedbackMap((prev) => ({ ...prev, [messageSeq]: signal }))
+
+    if (signal) {
+      submitFeedback(messageSeq, true)
+    } else {
+      setFeedbackDialogSeq(messageSeq)
+      setFeedbackComment("")
+      setFeedbackDialogOpen(true)
+    }
+  }, [submitFeedback])
+
+  const handleFeedbackCommentSubmit = useCallback(() => {
+    submitFeedback(feedbackDialogSeq, false, feedbackComment)
+    setFeedbackDialogOpen(false)
+  }, [submitFeedback, feedbackDialogSeq, feedbackComment])
+
   const isPanel = mode === "panel"
 
   if (!isPanel && !open) return null
@@ -205,7 +286,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
               <button
                 type="button"
                 className="ml-auto text-xs text-muted-foreground hover:text-foreground"
-                onClick={() => setMessages([])}
+                onClick={clearChat}
               >
                 Clear
               </button>
@@ -218,66 +299,111 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
               <p className="text-sm text-muted-foreground italic">{placeholderMessage}</p>
             </div>
           )}
-          {messages.filter((m) => !m.hidden).map((m, i) => (
-            <div
-              key={i}
-              className={cn(
-                "max-w-[90%] rounded-lg px-3 py-2 text-sm leading-relaxed",
-                m.role === "user"
-                  ? "ml-auto bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground chat-markdown",
-              )}
-            >
-              {m.role === "assistant" ? (
-                <>
-                  <Markdown
-                    components={{
-                      a: ({ href, children }) => (
-                        <a href={href} target="_blank" rel="noopener noreferrer" className="underline text-primary">
-                          {children}
-                        </a>
-                      ),
-                    }}
-                  >
-                    {m.content}
-                  </Markdown>
-                  {m.choices && m.choices.length > 0 && (
-                    <div className="mt-2 flex flex-col gap-1">
-                      {m.choices.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => handleChoiceClick(c)}
-                          disabled={loading}
-                          className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
-                        >
-                          <span className="size-3 shrink-0 rounded-full border-2 border-primary" />
-                          {c.label}
-                        </button>
-                      ))}
-                    </div>
+          {(() => {
+            const visible = messages
+              .map((m, originalIdx) => ({ ...m, originalIdx }))
+              .filter((m) => !m.hidden)
+            const lastAssistantIdx = visible.reduce(
+              (acc, vm, i) => (vm.role === "assistant" ? i : acc),
+              -1,
+            )
+            return visible.map((vm, i) => (
+              <div key={vm.originalIdx}>
+                <div
+                  className={cn(
+                    "max-w-[90%] rounded-lg px-3 py-2 text-sm leading-relaxed",
+                    vm.role === "user"
+                      ? "ml-auto bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground chat-markdown",
                   )}
-                  {m.downloads && m.downloads.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {m.downloads.map((dl) => (
-                        <button
-                          key={dl.filename}
-                          type="button"
-                          onClick={() => triggerDownload(dl)}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                        >
-                          <Download className="h-3.5 w-3.5" />
-                          {dl.filename}
-                        </button>
-                      ))}
-                    </div>
+                >
+                  {vm.role === "assistant" ? (
+                    <>
+                      <Markdown
+                        components={{
+                          a: ({ href, children }) => (
+                            <a href={href} target="_blank" rel="noopener noreferrer" className="underline text-primary">
+                              {children}
+                            </a>
+                          ),
+                        }}
+                      >
+                        {vm.content}
+                      </Markdown>
+                      {vm.choices && vm.choices.length > 0 && (
+                        <div className="mt-2 flex flex-col gap-1">
+                          {vm.choices.map((c) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => handleChoiceClick(c)}
+                              disabled={loading}
+                              className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                            >
+                              <span className="size-3 shrink-0 rounded-full border-2 border-primary" />
+                              {c.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {vm.downloads && vm.downloads.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {vm.downloads.map((dl) => (
+                            <button
+                              key={dl.filename}
+                              type="button"
+                              onClick={() => triggerDownload(dl)}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              {dl.filename}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    vm.content
                   )}
-                </>
-              ) : (
-                m.content
-              )}
-            </div>
-          ))}
+                </div>
+                {vm.role === "assistant" && (
+                  <div className="mt-1 flex items-center gap-1.5 text-muted-foreground">
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(vm.originalIdx, true)}
+                      className={cn("rounded p-0.5 transition-colors", feedbackMap[vm.originalIdx] === true ? "text-primary" : "hover:text-foreground")}
+                      aria-label="Good response"
+                    >
+                      <ThumbsUp
+                        className="h-3.5 w-3.5"
+                        {...(feedbackMap[vm.originalIdx] === true ? { fill: "currentColor" } : {})}
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(vm.originalIdx, false)}
+                      className={cn("rounded p-0.5 transition-colors", feedbackMap[vm.originalIdx] === false ? "text-primary" : "hover:text-foreground")}
+                      aria-label="Bad response"
+                    >
+                      <ThumbsDown
+                        className="h-3.5 w-3.5"
+                        {...(feedbackMap[vm.originalIdx] === false ? { fill: "currentColor" } : {})}
+                      />
+                    </button>
+                    {i === lastAssistantIdx && messages.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={clearChat}
+                        className="ml-auto text-xs text-primary hover:text-primary-hover transition-colors"
+                      >
+                        clear chat
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          })()}
           {loading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -286,43 +412,90 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           )}
         </div>
 
-        <div className="relative px-3 pb-3">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                send()
-              }
-            }}
-            placeholder="Message the agent…"
-            disabled={loading || disabled}
-            rows={5}
-            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-16 text-sm leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+        <div className="px-3 pb-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={handleFileSelect}
           />
-          <div className="absolute top-3 right-4 flex flex-col gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={loading || disabled || !input.trim()}
-              onClick={send}
-              className="size-7"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => setMessages([])}
-              className="size-7"
-              aria-label="Clear chat"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </Button>
+          {attachment && (
+            <div className="mb-1.5 flex items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+              <Paperclip className="h-3 w-3 shrink-0" />
+              <span className="truncate">{attachment.filename}</span>
+              <button
+                type="button"
+                onClick={() => setAttachment(null)}
+                className="ml-auto shrink-0 rounded-sm p-0.5 hover:bg-accent hover:text-foreground"
+                aria-label="Remove attachment"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          <div className="relative">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault()
+                  send()
+                }
+              }}
+              placeholder="How can I help you manage vendors?"
+              disabled={loading || disabled}
+              rows={5}
+              className="w-full resize-none rounded-md border border-input bg-background pl-3 pr-12 py-2 text-sm leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+            />
+            <div className="absolute right-2.5 top-1.5 bottom-1.5 flex flex-col items-center justify-end gap-1">
+              <Button
+                size="icon"
+                variant="ghost"
+                disabled={loading || disabled}
+                onClick={() => fileInputRef.current?.click()}
+                className="size-7"
+                aria-label="Attach file"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                disabled={loading || disabled || (!input.trim() && !attachment)}
+                onClick={send}
+                className="size-7"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
+
+        <Dialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>What went wrong?</DialogTitle>
+            </DialogHeader>
+            <textarea
+              value={feedbackComment}
+              onChange={(e) => setFeedbackComment(e.target.value)}
+              placeholder="Tell us what went wrong…"
+              rows={3}
+              className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="ghost" size="sm">Skip</Button>
+              </DialogClose>
+              <Button size="sm" onClick={handleFeedbackCommentSubmit}>
+                Submit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
   )
 })

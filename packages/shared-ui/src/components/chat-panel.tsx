@@ -22,11 +22,13 @@ export interface ChatChoice {
 }
 
 export interface ChatMessage {
-  role: "user" | "assistant"
-  content: string
+  role: "user" | "assistant" | "tool"
+  content: string | null
   hidden?: boolean
   choices?: ChatChoice[]
   downloads?: ChatDownload[]
+  tool_calls?: Array<{ id: string; type: string; function: { name: string; arguments: string } }>
+  tool_call_id?: string
 }
 
 export interface ChatPendingAction {
@@ -52,6 +54,7 @@ interface ChatResponse {
   disambiguation?: ChatDisambiguation | null
   downloads?: ChatDownload[]
   session_id?: string
+  tool_messages?: Array<Record<string, unknown>>
 }
 
 export interface ChatPanelHandle {
@@ -129,7 +132,13 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
 
     try {
       const payload: Record<string, unknown> = {
-        messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
+        messages: allMessages.map((m) => {
+          const msg: Record<string, unknown> = { role: m.role }
+          if (m.content != null) msg.content = m.content
+          if (m.tool_calls) msg.tool_calls = m.tool_calls
+          if (m.tool_call_id) msg.tool_call_id = m.tool_call_id
+          return msg
+        }),
         context: { app: appContext },
       }
       if (sessionId) {
@@ -170,7 +179,20 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       if (data.downloads?.length) {
         assistantMsg.downloads = data.downloads
       }
-      setMessages((prev) => [...prev, assistantMsg])
+      const newMessages: ChatMessage[] = []
+      if (data.tool_messages?.length) {
+        for (const tm of data.tool_messages) {
+          newMessages.push({
+            role: tm.role as ChatMessage["role"],
+            content: (tm.content as string) ?? null,
+            hidden: true,
+            tool_calls: tm.tool_calls as ChatMessage["tool_calls"],
+            tool_call_id: tm.tool_call_id as string | undefined,
+          })
+        }
+      }
+      newMessages.push(assistantMsg)
+      setMessages((prev) => [...prev, ...newMessages])
 
       if (data.pending_actions?.length) {
         onPendingAction?.(data.pending_actions)

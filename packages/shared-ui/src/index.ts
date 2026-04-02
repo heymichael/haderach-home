@@ -140,6 +140,8 @@ export {
 export { agentFetch } from "./lib/agent-fetch.ts"
 export { fetchBranding, useBranding } from "./lib/branding.ts"
 export type { Branding, LockupMode } from "./lib/branding.ts"
+export { FeedbackPopover } from "./components/feedback-popover.tsx"
+export type { FeedbackPopoverProps } from "./components/feedback-popover.tsx"
 export { ChatPanel } from "./components/chat-panel.tsx"
 export type { ChatPanelHandle, ChatPanelProps, ChatMessage, ChatChoice, ChatPendingAction } from "./components/chat-panel.tsx"
 export { ChatToggle } from "./components/chat-toggle.tsx"

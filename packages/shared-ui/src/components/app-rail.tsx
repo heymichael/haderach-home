@@ -9,8 +9,10 @@ import {
   DropdownMenuLabel,
 } from "./ui/dropdown-menu.tsx"
 import type { NavApp } from "../auth/app-catalog.ts"
+import type { PaneId } from "./pane-toolbar.tsx"
 import { usePrefetchApps } from "../hooks/use-prefetch-apps.ts"
 import { useBranding } from "../lib/branding.ts"
+import { FeedbackPopover } from "./feedback-popover.tsx"
 import {
   Truck,
   BarChart3,
@@ -110,6 +112,8 @@ export interface AppRailProps {
   userPhotoURL?: string
   userDisplayName?: string
   onSignOut?: () => void
+  openPanes?: Record<PaneId, boolean> | null
+  getIdToken?: () => Promise<string>
   className?: string
 }
 
@@ -122,6 +126,8 @@ export function AppRail({
   userPhotoURL,
   userDisplayName,
   onSignOut,
+  openPanes,
+  getIdToken,
   className,
 }: AppRailProps) {
   const railApps = apps.filter((a) => a.railEnabled)
@@ -215,14 +221,25 @@ export function AppRail({
               {isActive && (
                 <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-sm bg-chrome-text-hover" />
               )}
-              <Icon className="h-6 w-6 shrink-0" />
+              <div className="flex size-8 shrink-0 items-center justify-center">
+                <Icon className="h-6 w-6" />
+              </div>
               <span className="truncate">{app.label}</span>
             </a>
           )
         })}
       </div>
 
-      {/* User avatar */}
+      {/* Feedback + User avatar */}
+      {activeAppId && getIdToken && (
+        <div className="px-3">
+          <FeedbackPopover
+            appId={activeAppId}
+            openPanes={openPanes}
+            getIdToken={getIdToken}
+          />
+        </div>
+      )}
       {userEmail && (
         <div className="px-3 py-4">
           <DropdownMenu>

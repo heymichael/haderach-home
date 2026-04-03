@@ -5,7 +5,7 @@ Homepage and shared UI design system for the Haderach platform.
 ## What this repo owns
 
 - **Homepage SPA** — the landing page and auth gateway at `haderach.ai/`
-- **@haderach/shared-ui** — shared React component library (GlobalNav, shadcn/ui primitives, theme tokens) consumed by all app repos
+- **@haderach/shared-ui** — shared React component library (domain shell layout, ChatPanel, shadcn/ui primitives, admin components, analytics helpers, theme tokens) consumed by all app repos
 
 ## Development
 
@@ -43,5 +43,9 @@ haderach-home/
 | Repo | Purpose |
 |------|---------|
 | `haderach-platform` | Deploy orchestration, hosting config, infra |
+| `agent` | Shared chat agent backend (API consumed by ChatPanel and auth) |
+| `vendors` | Vendor management app at `/vendors/` |
 | `card` | Card editor app at `/card/` |
 | `stocks` | Stocks app at `/stocks/` |
+| `admin-vendors` | Vendor admin app at `/admin/vendors/` |
+| `admin-system` | System admin app at `/admin/system/` |

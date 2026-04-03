@@ -41,15 +41,27 @@ haderach-home/
     │       │   │   ├── ui/        # shadcn/ui primitives + DataTable + admin widgets
     │       │   │   │   ├── multi-select.tsx
     │       │   │   │   ├── multi-select.test.tsx
+    │       │   │   │   ├── filterable-header.tsx
+    │       │   │   │   ├── form-rows.tsx
+    │       │   │   │   ├── calendar.tsx
+    │       │   │   │   ├── date-range-picker.tsx
     │       │   │   │   ├── tag-badge.tsx
     │       │   │   │   ├── tag-badge.test.tsx
     │       │   │   │   └── ...    # button, card, input, table, etc.
+    │       │   │   ├── app-rail.tsx
+    │       │   │   ├── chat-panel.tsx
+    │       │   │   ├── chat-toggle.tsx
+    │       │   │   ├── feedback-popover.tsx
+    │       │   │   ├── pane-layout.tsx
+    │       │   │   ├── pane-toolbar.tsx
     │       │   │   └── GlobalNav.tsx
     │       │   ├── hooks/
     │       │   │   └── use-mobile.ts
     │       │   ├── lib/
     │       │   │   ├── agent-fetch.ts     # Shared authenticated fetch utility
     │       │   │   ├── agent-fetch.test.ts
+    │       │   │   ├── branding.ts        # fetchBranding, useBranding hook
+    │       │   │   ├── pivot.ts           # formatCurrency, pivotLongToWide
     │       │   │   └── utils.ts
     │       │   ├── theme/
     │       │   │   └── index.css  # Platform chrome tokens + font imports
@@ -144,21 +156,28 @@ gs://<bucket>/home/versions/<commit-sha>/
 
 The package exports:
 
-- **shadcn/ui primitives**: Button, Input, Select, Tabs, Card, Table, Separator, Sheet, Sidebar, Tooltip, DropdownMenu, Chart.
+- **shadcn/ui primitives**: Button, Input, Select, Tabs, Card, Table, Separator, Sheet, Sidebar, Tooltip, DropdownMenu, Chart, Calendar, DateRangePicker.
 - **DataTable**: Generic sortable data table (`DataTable<TData>`) wrapping TanStack Table + Table primitives, with optional CSV download. Also re-exports the `ColumnDef` type.
+- **FilterableHeader**: Column header component that adds inline filter dropdowns to DataTable columns. `setFilterFn` helper for wiring column filter state.
+- **Form row components**: `DetailRow`, `EditRow`, `SelectRow`, `CheckboxRow` — standardized form layout components for admin detail panels.
 - **Admin components**:
   - `AdminModal` — generic modal shell with title, close button, scrollable body, optional footer.
   - `UserTable` — configurable user list table with column definitions, sorting, type-ahead search, sticky headers, loading/empty states, and row click handler.
   - `TagBadge` — styled pill for roles, departments, or vendor names (`default` and `muted` variants).
   - `MultiSelect` — searchable multi-select popover with select-all, search filter, per-item toggle, and custom item rendering.
+- **Analytics helpers**: `formatCurrency`, `formatMonthHeader`, `pivotLongToWide` — utilities for transforming long-format spend data into wide-format pivot tables for charting.
 - **agentFetch**: Shared authenticated fetch utility that prepends `/agent/api` and attaches Firebase ID tokens.
+- **Branding**: `fetchBranding` and `useBranding` hook — fetch org logo and lockup mode from `GET /branding`. Used by AppRail to render the data-driven logo.
+- **FeedbackPopover**: Feedback UI rendered in the AppRail. Collects general site/app feedback and submits to `POST /feedback/site`.
 - **GlobalNav**: Legacy top-bar navigation component with avatar-triggered dropdown menu (profile info, Settings link, Log out). Uses platform chrome tokens exclusively. Retained for apps not yet migrated to the domain shell layout.
-- **AppRail**: Collapsible left rail for domain navigation. Replaces `GlobalNav` + `Sidebar` in migrated apps. Shows logo, role-gated domain icons with active indicator, and user avatar with upward flyout. Push behavior (content reflows on expand/collapse).
+- **AppRail**: Collapsible left rail for domain navigation. Replaces `GlobalNav` + `Sidebar` in migrated apps. Shows data-driven logo (from branding API), role-gated domain icons with active indicator, feedback popover, and user avatar with upward flyout. Push behavior (content reflows on expand/collapse). `useRailExpanded` hook persists expand/collapse to localStorage.
 - **PaneToolbar**: Thin horizontal toolbar (h-12) with toggle icons for chat, analytics, and data panes. Clicking an icon snaps that pane to full width.
 - **PaneLayout**: Resizable three-pane content area (chat | analytics | data) using `react-resizable-panels`. Fixed left-to-right order, drag handles between panes, collapsible with minimum size threshold.
-- **ChatPanel**: Chat interface component. Supports `mode="panel"` (fills container, no close button — for use inside `PaneLayout`) and `mode="standalone"` (legacy fixed-width overlay behavior).
+- **ChatPanel**: Chat interface component with tool-calling agent integration. Features: tool message replay for multi-turn context, CSV download buttons, inline disambiguation radio buttons, pending action handling (`confirm_edit` / `confirm_csv_batch`), per-message thumbs up/down feedback with session tracking. Supports `mode="panel"` (fills container — for use inside `PaneLayout`) and `mode="standalone"` (legacy overlay behavior).
+- **ChatToggle**: Standalone button to open/close a ChatPanel overlay. Used by apps that haven't adopted PaneLayout.
 - **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleRailApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies. `NavApp` includes optional `icon` (lucide icon key) and `railEnabled` fields for the domain shell layout.
 - **Auth primitives**: `BaseAuthUser` interface (common auth context shape), `UserDoc` interface and `fetchUserDoc` (calls `/agent/api/me`), `buildDisplayName`. Apps with no extra fields re-export `BaseAuthUser` as their `AuthUser`; apps with extensions (e.g. vendors) use `interface AuthUser extends BaseAuthUser`.
+- **Hooks**: `useIsMobile` (responsive breakpoint), `usePrefetchApps` (idle-time prefetch of sibling app bundles for instant domain switching).
 
 ## Domain Shell Layout
 

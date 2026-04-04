@@ -12,6 +12,10 @@
     "./theme": {
       "style": "./src/theme/index.css",
       "import": "./src/theme/index.css"
+    },
+    "./theme/domain": {
+      "style": "./src/theme/domain.css",
+      "import": "./src/theme/domain.css"
     }
   },
   "scripts": {
@@ -19,6 +23,7 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
+    "firebase": "^11.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.0"

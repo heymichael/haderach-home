@@ -127,6 +127,10 @@ export {
 export type { BaseAuthUser } from "./auth/base-auth-user.ts"
 export type { UserDoc } from "./auth/user-doc.ts"
 export { fetchUserDoc, buildDisplayName } from "./auth/user-doc.ts"
+export { getAuthRuntimeConfig } from "./auth/runtime-config.ts"
+export type { FirebaseWebConfig } from "./auth/runtime-config.ts"
+export { AuthGate, AuthUserContext, useAuthUser } from "./auth/auth-gate.tsx"
+export type { AuthGateProps } from "./auth/auth-gate.tsx"
 export {
   Dialog,
   DialogTrigger,
@@ -146,6 +150,8 @@ export { ChatPanel } from "./components/chat-panel.tsx"
 export type { ChatPanelHandle, ChatPanelProps, ChatMessage, ChatChoice, ChatPendingAction } from "./components/chat-panel.tsx"
 export { ChatTable } from "./components/chat-table.tsx"
 export type { ChatTablePayload } from "./components/chat-table.tsx"
+export { ViewModeToggle } from "./components/view-mode-toggle.tsx"
+export type { ViewMode, ViewModeToggleProps } from "./components/view-mode-toggle.tsx"
 export { ChatToggle } from "./components/chat-toggle.tsx"
 export type { ChatToggleProps } from "./components/chat-toggle.tsx"
 export { TagBadge, tagBadgeVariants } from "./components/ui/tag-badge.tsx"

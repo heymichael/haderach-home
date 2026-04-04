@@ -1,5 +1,5 @@
 import { cn } from "../lib/utils.ts"
-import { MessageSquare, BarChart3, Database } from "lucide-react"
+import { MessageSquare, Gauge, Database } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type PaneId = "chat" | "analytics" | "data"
@@ -12,7 +12,7 @@ interface PaneDef {
 
 const PANE_DEFS: PaneDef[] = [
   { id: "chat", label: "Chat", icon: MessageSquare },
-  { id: "analytics", label: "Dashboard", icon: BarChart3 },
+  { id: "analytics", label: "Dashboard", icon: Gauge },
   { id: "data", label: "Data", icon: Database },
 ]
 

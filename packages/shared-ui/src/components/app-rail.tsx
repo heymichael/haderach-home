@@ -15,7 +15,7 @@ import { useBranding } from "../lib/branding.ts"
 import { FeedbackPopover } from "./feedback-popover.tsx"
 import {
   Truck,
-  BarChart3,
+  Gauge,
   CreditCard,
   Layers,
   PanelLeft,
@@ -40,7 +40,7 @@ export function useRailExpanded(): [boolean, () => void] {
 
 const ICON_MAP: Record<string, LucideIcon> = {
   truck: Truck,
-  "bar-chart-3": BarChart3,
+  gauge: Gauge,
   "credit-card": CreditCard,
   layers: Layers,
 }

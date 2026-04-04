@@ -14,6 +14,8 @@ import {
   DialogFooter,
   DialogClose,
 } from "./ui/dialog.tsx"
+import { ChatTable } from "./chat-table.tsx"
+import type { ChatTablePayload } from "./chat-table.tsx"
 
 export interface ChatChoice {
   id: string
@@ -27,6 +29,7 @@ export interface ChatMessage {
   hidden?: boolean
   choices?: ChatChoice[]
   downloads?: ChatDownload[]
+  tables?: ChatTablePayload[]
   tool_calls?: Array<{ id: string; type: string; function: { name: string; arguments: string } }>
   tool_call_id?: string
 }
@@ -53,6 +56,7 @@ interface ChatResponse {
   pending_actions?: ChatPendingAction[]
   disambiguation?: ChatDisambiguation | null
   downloads?: ChatDownload[]
+  tables?: ChatTablePayload[]
   session_id?: string
   tool_messages?: Array<Record<string, unknown>>
 }
@@ -178,6 +182,9 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
       }
       if (data.downloads?.length) {
         assistantMsg.downloads = data.downloads
+      }
+      if (data.tables?.length) {
+        assistantMsg.tables = data.tables
       }
       const newMessages: ChatMessage[] = []
       if (data.tool_messages?.length) {
@@ -352,6 +359,9 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
                       >
                         {vm.content}
                       </Markdown>
+                      {vm.tables && vm.tables.length > 0 && vm.tables.map((t, ti) => (
+                        <ChatTable key={ti} {...t} />
+                      ))}
                       {vm.choices && vm.choices.length > 0 && (
                         <div className="mt-2 flex flex-col gap-1">
                           {vm.choices.map((c) => (

@@ -1,0 +1,58 @@
+import { Meta, ColorPalette, ColorItem } from "@storybook/addon-docs/blocks";
+
+<Meta title="Design Tokens/Platform Chrome" />
+
+# Platform Chrome Tokens
+
+These tokens style the global UI shell — navigation, tooltips, dropdowns, and other
+chrome that stays consistent across all apps. **Do not override in app-level themes.**
+
+Defined in `@haderach/shared-ui/theme` (`theme/index.css`).
+
+<ColorPalette>
+  <ColorItem
+    title="--color-chrome-bg"
+    subtitle="Shell background"
+    colors={{ "chrome-bg": "oklch(1 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-border"
+    subtitle="Shell borders"
+    colors={{ "chrome-border": "oklch(0.922 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-text"
+    subtitle="Default text"
+    colors={{ "chrome-text": "oklch(0.439 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-text-strong"
+    subtitle="Emphasized text"
+    colors={{ "chrome-text-strong": "oklch(0.371 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-text-hover"
+    subtitle="Hovered text"
+    colors={{ "chrome-text-hover": "oklch(0.145 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-text-muted"
+    subtitle="De-emphasized text"
+    colors={{ "chrome-text-muted": "oklch(0.556 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-subtle"
+    subtitle="Subtle background"
+    colors={{ "chrome-subtle": "oklch(0.985 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-hover"
+    subtitle="Hover state"
+    colors={{ "chrome-hover": "oklch(0.97 0 0)" }}
+  />
+  <ColorItem
+    title="--color-chrome-avatar"
+    subtitle="Avatar fallback"
+    colors={{ "chrome-avatar": "oklch(0.55 0.08 185)" }}
+  />
+</ColorPalette>

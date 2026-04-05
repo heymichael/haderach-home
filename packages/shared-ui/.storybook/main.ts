@@ -15,10 +15,13 @@ const config: StorybookConfig = {
     reactDocgen: "react-docgen-typescript",
   },
 
+  staticDirs: ["../public"],
+
   async viteFinal(config) {
     const { mergeConfig } = await import("vite");
     const { default: tailwindcss } = await import("@tailwindcss/vite");
     return mergeConfig(config, {
+      base: "/components/",
       plugins: [tailwindcss()],
     });
   },

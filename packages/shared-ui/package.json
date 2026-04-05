@@ -22,7 +22,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build -o storybook-static"
+    "build-storybook": "storybook build -o storybook-static --preview-url /components/iframe.html --force-build-preview"
   },
   "peerDependencies": {
     "firebase": "^12.0.0",

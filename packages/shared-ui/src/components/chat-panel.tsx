@@ -76,6 +76,7 @@ export interface ChatPanelProps {
   title?: string
   disabled?: boolean
   placeholderMessage?: string
+  inputPlaceholder?: string
 }
 
 export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function ChatPanel({
@@ -89,6 +90,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
   title = "Agent",
   disabled = false,
   placeholderMessage = "Chat capabilities coming soon.",
+  inputPlaceholder = "How can I help you manage vendors?",
 }, ref) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
@@ -477,7 +479,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
                   send()
                 }
               }}
-              placeholder="How can I help you manage vendors?"
+              placeholder={inputPlaceholder}
               disabled={loading || disabled}
               rows={5}
               className="w-full resize-none rounded-md border border-input bg-background pl-3 pr-12 py-2 text-sm leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"

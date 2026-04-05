@@ -13,7 +13,7 @@ export interface PaneLayoutHandle {
 
 export interface PaneLayoutProps {
   chatContent: ReactNode
-  analyticsContent: ReactNode
+  analyticsContent?: ReactNode
   dataContent: ReactNode
   chatOpen: boolean
   detailPane: "analytics" | "data" | null
@@ -87,10 +87,12 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
             !chatOpen && !detailPane && "hidden",
           )}
         >
-          {/* Analytics — always mounted, hidden when not active */}
-          <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "analytics" && "hidden")}>
-            {analyticsContent}
-          </div>
+          {/* Analytics — mounted only when content is provided */}
+          {analyticsContent != null && (
+            <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "analytics" && "hidden")}>
+              {analyticsContent}
+            </div>
+          )}
           {/* Data — always mounted, hidden when not active */}
           <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "data" && "hidden")}>
             {dataContent}

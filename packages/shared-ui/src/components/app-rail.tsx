@@ -19,6 +19,7 @@ import {
   CreditCard,
   Layers,
   PanelLeft,
+  Receipt,
   type LucideIcon,
 } from "lucide-react"
 
@@ -43,6 +44,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   gauge: Gauge,
   "credit-card": CreditCard,
   layers: Layers,
+  receipt: Receipt,
 }
 
 function getInitials(displayName?: string, email?: string): string {

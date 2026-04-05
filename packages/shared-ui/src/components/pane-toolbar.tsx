@@ -19,14 +19,20 @@ const PANE_DEFS: PaneDef[] = [
 export interface PaneToolbarProps {
   activePanes: Record<PaneId, boolean>
   onPaneToggle: (id: PaneId) => void
+  panes?: PaneId[]
   className?: string
 }
 
 export function PaneToolbar({
   activePanes,
   onPaneToggle,
+  panes,
   className,
 }: PaneToolbarProps) {
+  const visiblePanes = panes
+    ? PANE_DEFS.filter((p) => panes.includes(p.id))
+    : PANE_DEFS
+
   return (
     <div
       className={cn(
@@ -34,7 +40,7 @@ export function PaneToolbar({
         className,
       )}
     >
-      {PANE_DEFS.map(({ id, label, icon: Icon }) => {
+      {visiblePanes.map(({ id, label, icon: Icon }) => {
         const isActive = activePanes[id]
 
         return (

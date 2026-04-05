@@ -1,0 +1,187 @@
+import { Meta, ColorPalette, ColorItem, Typeset } from "@storybook/addon-docs/blocks";
+
+<Meta title="Design Tokens/Domain App" />
+
+# Domain App Tokens
+
+These tokens are shared across all domain apps (vendors, stocks, admin, etc.).
+Apps that need a different design system import `@haderach/shared-ui/theme` and
+define their own tokens instead.
+
+Defined in `@haderach/shared-ui/theme/domain` (`theme/domain.css`).
+
+## Surfaces
+
+<ColorPalette>
+  <ColorItem
+    title="--color-background"
+    subtitle="Page background"
+    colors={{ background: "oklch(1 0 0)" }}
+  />
+  <ColorItem
+    title="--color-foreground"
+    subtitle="Default text"
+    colors={{ foreground: "oklch(0.2 0 0)" }}
+  />
+  <ColorItem
+    title="--color-surface"
+    subtitle="Card / panel surface"
+    colors={{ surface: "oklch(1 0 0)" }}
+  />
+  <ColorItem
+    title="--color-surface-alt"
+    subtitle="Alternate surface"
+    colors={{ "surface-alt": "oklch(0.98 0 0)" }}
+  />
+</ColorPalette>
+
+## Primary / Secondary / Accent
+
+<ColorPalette>
+  <ColorItem
+    title="--color-primary"
+    subtitle="Primary action"
+    colors={{ primary: "oklch(0.52 0.09 190)" }}
+  />
+  <ColorItem
+    title="--color-primary-hover"
+    subtitle="Primary hover"
+    colors={{ "primary-hover": "oklch(0.46 0.09 190)" }}
+  />
+  <ColorItem
+    title="--color-primary-foreground"
+    subtitle="Text on primary"
+    colors={{ "primary-fg": "oklch(1 0 0)" }}
+  />
+  <ColorItem
+    title="--color-secondary"
+    subtitle="Secondary action"
+    colors={{ secondary: "oklch(0.97 0 0)" }}
+  />
+  <ColorItem
+    title="--color-accent"
+    subtitle="Accent background"
+    colors={{ accent: "oklch(0.95 0 0)" }}
+  />
+</ColorPalette>
+
+## Muted
+
+<ColorPalette>
+  <ColorItem
+    title="--color-muted"
+    subtitle="Muted background"
+    colors={{ muted: "oklch(0.97 0 0)" }}
+  />
+  <ColorItem
+    title="--color-muted-foreground"
+    subtitle="Muted text"
+    colors={{ "muted-fg": "oklch(0.36 0 0)" }}
+  />
+  <ColorItem
+    title="--color-text-muted"
+    subtitle="Secondary text"
+    colors={{ "text-muted": "oklch(0.6 0 0)" }}
+  />
+</ColorPalette>
+
+## Destructive / Error
+
+<ColorPalette>
+  <ColorItem
+    title="--color-destructive"
+    subtitle="Destructive action"
+    colors={{ destructive: "oklch(0.4 0.16 25)" }}
+  />
+  <ColorItem
+    title="--color-error"
+    subtitle="Error state"
+    colors={{ error: "oklch(0.4 0.16 25)" }}
+  />
+  <ColorItem
+    title="--color-error-bg"
+    subtitle="Error background"
+    colors={{ "error-bg": "oklch(0.95 0.02 20)" }}
+  />
+  <ColorItem
+    title="--color-error-auth"
+    subtitle="Auth error text"
+    colors={{ "error-auth": "oklch(0.47 0.13 30)" }}
+  />
+</ColorPalette>
+
+## Borders / Input
+
+<ColorPalette>
+  <ColorItem
+    title="--color-border"
+    subtitle="Default border"
+    colors={{ border: "oklch(0.89 0 0)" }}
+  />
+  <ColorItem
+    title="--color-border-subtle"
+    subtitle="Subtle border"
+    colors={{ "border-subtle": "oklch(0.95 0 0)" }}
+  />
+  <ColorItem
+    title="--color-border-muted"
+    subtitle="Muted border"
+    colors={{ "border-muted": "oklch(0.9 0.01 90)" }}
+  />
+  <ColorItem
+    title="--color-input"
+    subtitle="Input border"
+    colors={{ input: "oklch(0.83 0 0)" }}
+  />
+  <ColorItem
+    title="--color-ring"
+    subtitle="Focus ring"
+    colors={{ ring: "oklch(0.52 0.09 190)" }}
+  />
+</ColorPalette>
+
+## Overlays
+
+<ColorPalette>
+  <ColorItem
+    title="--color-popover"
+    subtitle="Popover background"
+    colors={{ popover: "oklch(1 0 0)" }}
+  />
+  <ColorItem
+    title="--color-popover-foreground"
+    subtitle="Popover text"
+    colors={{ "popover-fg": "oklch(0.2 0 0)" }}
+  />
+  <ColorItem
+    title="--color-card"
+    subtitle="Card background"
+    colors={{ card: "oklch(1 0 0)" }}
+  />
+  <ColorItem
+    title="--color-card-foreground"
+    subtitle="Card text"
+    colors={{ "card-fg": "oklch(0.2 0 0)" }}
+  />
+</ColorPalette>
+
+## Auth
+
+<ColorPalette>
+  <ColorItem
+    title="--color-auth-primary"
+    subtitle="Auth CTA"
+    colors={{ "auth-primary": "oklch(0.61 0.17 264)" }}
+  />
+</ColorPalette>
+
+## Typography
+
+`--font-sans`: Geist Sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif
+
+<Typeset
+  fontFamily="'Geist Sans', system-ui, sans-serif"
+  fontSizes={[14, 16, 20, 24, 32]}
+  fontWeight={400}
+  sampleText="The quick brown fox jumps over the lazy dog"
+/>

@@ -1,6 +1,6 @@
 @import "./index.css";
 
-@theme {
+@theme inline {
   /* Domain app product tokens — shared across vendors, stocks, admin-*, etc.
      Apps that need a different design system (card, home landing) import
      @haderach/shared-ui/theme instead and define their own tokens. */

@@ -10,7 +10,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "npm run storybook -w @haderach/shared-ui",
+    "build-storybook": "npm run build-storybook -w @haderach/shared-ui"
   },
   "dependencies": {
     "firebase": "^12.10.0",

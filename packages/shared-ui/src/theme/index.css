@@ -2,7 +2,7 @@
 @import "@fontsource/geist-sans/500.css";
 @import "@fontsource/geist-sans/600.css";
 
-@theme {
+@theme inline {
   /* Platform chrome — global UI shell (nav, tooltips, dropdowns).
      Consistent across all apps. App @theme blocks must not redefine these. */
   --color-chrome-bg: oklch(1 0 0);

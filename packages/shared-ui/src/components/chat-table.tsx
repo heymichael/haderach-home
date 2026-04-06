@@ -110,7 +110,7 @@ export function ChatTable({ metric, columns, rows, filename, filters }: ChatTabl
       <div
         className={scrollable ? "max-h-[13rem] overflow-y-auto" : undefined}
       >
-        <Table className="w-auto">
+        <Table>
           <TableHeader>
             <TableRow style={{ backgroundColor: "rgba(0,0,0,0.07)" }}>
               {columns.map((col, ci) => (

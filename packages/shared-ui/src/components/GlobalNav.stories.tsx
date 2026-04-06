@@ -4,9 +4,8 @@ import { GlobalNav } from "./GlobalNav.tsx";
 import type { NavApp } from "../auth/app-catalog.ts";
 
 const mockApps: NavApp[] = [
+  { id: "expenses", label: "Expenses", path: "/expenses/", icon: "receipt" },
   { id: "vendors", label: "Vendors", path: "/vendors/", icon: "truck" },
-  { id: "stocks", label: "Commodities", path: "/stocks/", icon: "layers" },
-  { id: "card", label: "Card", path: "/card/", icon: "credit-card" },
 ];
 
 const meta: Meta<typeof GlobalNav> = {
@@ -27,7 +26,7 @@ export const SignedIn: Story = {
   args: {
     userEmail: "alice@acme.com",
     userDisplayName: "Alice Johnson",
-    logo: <span className="text-sm font-bold">Arcade</span>,
+    logo: <span className="text-sm font-bold">Haderach</span>,
   },
 };
 
@@ -35,7 +34,7 @@ export const SignedOut: Story = {
   args: {
     userEmail: undefined,
     onSignIn: fn(),
-    logo: <span className="text-sm font-bold">Arcade</span>,
+    logo: <span className="text-sm font-bold">Haderach</span>,
   },
 };
 

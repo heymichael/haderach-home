@@ -5,8 +5,8 @@ import { AppRail } from "./app-rail.tsx";
 import type { NavApp } from "../auth/app-catalog.ts";
 
 const mockApps: NavApp[] = [
+  { id: "expenses", label: "Expenses", path: "/expenses/", icon: "receipt", railEnabled: true },
   { id: "vendors", label: "Vendors", path: "/vendors/", icon: "truck", railEnabled: true },
-  { id: "stocks", label: "Commodities", path: "/stocks/", icon: "layers", railEnabled: true },
 ];
 
 const meta: Meta<typeof AppRail> = {

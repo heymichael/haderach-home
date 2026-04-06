@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { GlobalNav, Card, CardContent, Button, getAccessibleRailApps } from "@haderach/shared-ui"
+import { GlobalNav, AppRail, useRailExpanded, Card, CardContent, Button, getAccessibleRailApps } from "@haderach/shared-ui"
 import type { NavApp } from "@haderach/shared-ui"
 import { useAuth, type AuthState } from "./auth/use-auth.ts"
 import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
@@ -76,6 +76,7 @@ function isSettingsPath(): boolean {
 
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
+  const [railExpanded, toggleRail] = useRailExpanded()
 
   useEffect(() => {
     if (state.status !== "authorized") return
@@ -86,9 +87,32 @@ function App() {
     }
   }, [state])
 
+  const showSettings = isSettingsPath() && state.status === "authorized"
+
+  if (showSettings && state.status === "authorized") {
+    const railApps = getAccessibleRailApps(state.roles)
+
+    return (
+      <div className="app-shell">
+        <AppRail
+          apps={railApps as NavApp[]}
+          expanded={railExpanded}
+          onToggle={toggleRail}
+          userEmail={state.user.email ?? undefined}
+          userPhotoURL={state.profile.photoURL}
+          userDisplayName={state.profile.displayName}
+          onSignOut={handleSignOut}
+          getIdToken={() => state.user.getIdToken()}
+        />
+        <main className="flex min-w-0 flex-1 flex-col items-center overflow-y-auto bg-background text-foreground">
+          <SettingsHub roles={state.roles} />
+        </main>
+      </div>
+    )
+  }
+
   const navProps = buildNavProps(state, handleSignIn, handleSignOut)
   const showReturnToPrompt = state.status === "signed-out" && getReturnTo()
-  const showSettings = isSettingsPath() && state.status === "authorized"
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -115,10 +139,6 @@ function App() {
           <div className="pt-12">
             <ReturnToPrompt onSignIn={handleSignIn} />
           </div>
-        )}
-
-        {showSettings && (
-          <SettingsHub roles={state.roles} />
         )}
       </main>
     </div>

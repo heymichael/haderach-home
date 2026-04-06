@@ -93,7 +93,7 @@ function App() {
     const railApps = getAccessibleRailApps(state.roles)
 
     return (
-      <div className="app-shell">
+      <div className="flex h-screen overflow-hidden">
         <AppRail
           apps={railApps as NavApp[]}
           expanded={railExpanded}

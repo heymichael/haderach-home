@@ -6,6 +6,7 @@ import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
 import { SettingsHub } from "./SettingsHub.tsx"
 import { Footer } from "./components/Footer.tsx"
 import { LegalPage } from "./pages/LegalPage.tsx"
+import { QuickBooksIntegrationPage } from "./pages/QuickBooksIntegrationPage.tsx"
 
 function buildNavProps(
   state: AuthState,
@@ -81,20 +82,30 @@ function getLegalSlug(): string | null {
   return match ? match[1] : null
 }
 
+function getQuickBooksIntegrationRoute(): "connect" | "disconnected" | null {
+  const match = window.location.pathname.match(
+    /^\/integrations\/quickbooks\/(connect|disconnected)\/?$/,
+  )
+  if (!match) return null
+  return match[1] as "connect" | "disconnected"
+}
+
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
   const [railExpanded, toggleRail] = useRailExpanded()
   const legalSlug = getLegalSlug()
+  const qboRoute = getQuickBooksIntegrationRoute()
 
   useEffect(() => {
     if (state.status !== "authorized") return
     if (isSettingsPath()) return
     if (legalSlug) return
+    if (qboRoute) return
     const railApps = getAccessibleRailApps(state.roles)
     if (railApps.length > 0) {
       window.location.replace(railApps[0].path)
     }
-  }, [state, legalSlug])
+  }, [state, legalSlug, qboRoute])
 
   const showSettings = isSettingsPath() && state.status === "authorized"
 
@@ -130,6 +141,12 @@ function App() {
       <main className="flex flex-1 flex-col items-center w-full">
         {legalSlug ? (
           <LegalPage slug={legalSlug} />
+        ) : qboRoute ? (
+          <QuickBooksIntegrationPage
+            route={qboRoute}
+            state={state}
+            onSignIn={handleSignIn}
+          />
         ) : (
           <>
             {state.status === "loading" && (

@@ -13,7 +13,7 @@ const LEGAL_DOCS: Record<string, { title: string; url: string }> = {
   },
 }
 
-export function getLegalDoc(slug: string) {
+function getLegalDoc(slug: string) {
   return LEGAL_DOCS[slug] ?? null
 }
 

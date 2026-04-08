@@ -7,6 +7,7 @@ import {
   type Auth,
 } from "firebase/auth"
 import { getFirestore, type Firestore } from "firebase/firestore"
+import { getAuthRuntimeConfig } from "@haderach/shared-ui"
 
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
@@ -15,9 +16,11 @@ let db: Firestore | null = null
 export async function initFirebase(): Promise<{ auth: Auth; db: Firestore }> {
   if (auth && db) return { auth, db }
 
-  const resp = await fetch("/__/firebase/init.json")
-  if (!resp.ok) throw new Error("Failed to load Firebase config")
-  const config = await resp.json()
+  const runtimeConfig = getAuthRuntimeConfig()
+  if (!runtimeConfig.firebaseConfig) {
+    throw new Error(runtimeConfig.configError ?? "Failed to load Firebase config")
+  }
+  const config = runtimeConfig.firebaseConfig
 
   app = initializeApp(config)
   auth = getAuth(app)

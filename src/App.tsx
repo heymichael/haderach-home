@@ -4,6 +4,8 @@ import type { NavApp } from "@haderach/shared-ui"
 import { useAuth, type AuthState } from "./auth/use-auth.ts"
 import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
 import { SettingsHub } from "./SettingsHub.tsx"
+import { Footer } from "./components/Footer.tsx"
+import { LegalPage } from "./pages/LegalPage.tsx"
 
 function buildNavProps(
   state: AuthState,
@@ -74,18 +76,25 @@ function isSettingsPath(): boolean {
   return p === "/admin" || p === "/admin/"
 }
 
+function getLegalSlug(): string | null {
+  const match = window.location.pathname.match(/^\/legal\/([^/]+)\/?$/)
+  return match ? match[1] : null
+}
+
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
   const [railExpanded, toggleRail] = useRailExpanded()
+  const legalSlug = getLegalSlug()
 
   useEffect(() => {
     if (state.status !== "authorized") return
     if (isSettingsPath()) return
+    if (legalSlug) return
     const railApps = getAccessibleRailApps(state.roles)
     if (railApps.length > 0) {
       window.location.replace(railApps[0].path)
     }
-  }, [state])
+  }, [state, legalSlug])
 
   const showSettings = isSettingsPath() && state.status === "authorized"
 
@@ -119,28 +128,36 @@ function App() {
       <GlobalNav {...navProps} />
 
       <main className="flex flex-1 flex-col items-center w-full">
-        {state.status === "loading" && (
-          <div className="flex flex-1 items-center">
-            <p className="text-foreground-muted">Loading&hellip;</p>
-          </div>
-        )}
+        {legalSlug ? (
+          <LegalPage slug={legalSlug} />
+        ) : (
+          <>
+            {state.status === "loading" && (
+              <div className="flex flex-1 items-center">
+                <p className="text-foreground-muted">Loading&hellip;</p>
+              </div>
+            )}
 
-        {state.status === "init-error" && (
-          <div className="flex items-center px-4 pt-12">
-            <Card className="w-[min(560px,100%)] border-border bg-surface">
-              <CardContent>
-                <p className="text-error">{state.message}</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+            {state.status === "init-error" && (
+              <div className="flex items-center px-4 pt-12">
+                <Card className="w-[min(560px,100%)] border-border bg-surface">
+                  <CardContent>
+                    <p className="text-error">{state.message}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-        {showReturnToPrompt && (
-          <div className="pt-12">
-            <ReturnToPrompt onSignIn={handleSignIn} />
-          </div>
+            {showReturnToPrompt && (
+              <div className="pt-12">
+                <ReturnToPrompt onSignIn={handleSignIn} />
+              </div>
+            )}
+          </>
         )}
       </main>
+
+      {state.status !== "loading" && <Footer />}
     </div>
   )
 }

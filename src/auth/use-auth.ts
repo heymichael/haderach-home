@@ -149,6 +149,14 @@ export function useAuth() {
     try {
       await signInWithPopup(firebaseReady.auth, googleProvider)
     } catch (err) {
+      if (
+        err != null &&
+        typeof err === "object" &&
+        "code" in err &&
+        err.code === "auth/popup-closed-by-user"
+      ) {
+        return
+      }
       const message =
         err instanceof Error ? err.message : "Sign-in failed."
       setState({ status: "init-error", message })

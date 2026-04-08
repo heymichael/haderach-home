@@ -105,6 +105,7 @@ haderach-home/
 
 - Homepage SPA: auth gateway, app launcher, and homepage content at `/`.
 - Settings hub: role-gated admin navigation shell at `/admin/`, routing users to admin apps based on their roles.
+- QuickBooks integration lifecycle pages at `/integrations/quickbooks/connect` and `/integrations/quickbooks/disconnected` (connect page gates to admin and redirects to `/agent/api/qbo/auth`).
 - Shared UI design system: `@haderach/shared-ui` with shadcn/ui primitives, GlobalNav, and theme tokens.
 - App CI checks (lint, build).
 - Versioned artifact packaging and manifest publication.

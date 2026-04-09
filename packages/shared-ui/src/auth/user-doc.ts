@@ -1,10 +1,12 @@
 import { agentFetch } from '../lib/agent-fetch.ts'
 
-export interface UserDoc {
+export interface BaseUserDoc {
   roles: string[]
   firstName: string
   lastName: string
 }
+
+export type UserDoc = BaseUserDoc & Record<string, unknown>
 
 export async function fetchUserDoc(
   getIdToken: () => Promise<string>,
@@ -13,9 +15,13 @@ export async function fetchUserDoc(
   try {
     const res = await agentFetch('/me', getIdToken)
     if (!res.ok) return empty
-    const data = await res.json()
+    const data = await res.json() as Record<string, unknown>
+    const roles = Array.isArray(data.roles)
+      ? data.roles.filter((r): r is string => typeof r === 'string')
+      : []
     return {
-      roles: Array.isArray(data.roles) ? data.roles : [],
+      ...data,
+      roles,
       firstName: typeof data.firstName === 'string' ? data.firstName : '',
       lastName: typeof data.lastName === 'string' ? data.lastName : '',
     }

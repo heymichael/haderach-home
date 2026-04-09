@@ -49,6 +49,27 @@ function writeStoredBranding(branding: Branding | null): void {
   }
 }
 
+function resolveWithStickyBranding(next: Branding | null): Branding | null {
+  if (next) {
+    cachedBranding = next
+    writeStoredBranding(next)
+    return next
+  }
+
+  if (cachedBranding) {
+    // Keep last good branding to avoid fallback logo flashes.
+    return cachedBranding
+  }
+
+  const stored = readStoredBranding()
+  if (stored) {
+    cachedBranding = stored
+    return stored
+  }
+
+  return null
+}
+
 function getBrandingOnce(): Promise<Branding | null> {
   if (cachedBranding !== undefined) {
     return Promise.resolve(cachedBranding)
@@ -58,9 +79,9 @@ function getBrandingOnce(): Promise<Branding | null> {
   }
   brandingInFlight = fetchBranding()
     .then((result) => {
-      cachedBranding = result
-      writeStoredBranding(result)
-      return result
+      const resolved = resolveWithStickyBranding(result)
+      cachedBranding = resolved
+      return resolved
     })
     .finally(() => {
       brandingInFlight = null

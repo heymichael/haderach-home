@@ -11,6 +11,11 @@ export interface Branding {
   lockupMode: LockupMode
 }
 
+export interface BrandingState {
+  branding: Branding | null
+  resolved: boolean
+}
+
 let cachedBranding: Branding | null | undefined = undefined
 let brandingInFlight: Promise<Branding | null> | null = null
 
@@ -101,12 +106,17 @@ export async function fetchBranding(): Promise<Branding | null> {
 }
 
 export function useBranding(): Branding | null {
+  return useBrandingState().branding
+}
+
+export function useBrandingState(): BrandingState {
   const [branding, setBranding] = useState<Branding | null>(() => {
     if (cachedBranding === undefined) {
       cachedBranding = readStoredBranding()
     }
     return cachedBranding ?? null
   })
+  const [resolved, setResolved] = useState<boolean>(() => cachedBranding !== undefined)
 
   useEffect(() => {
     if (cachedBranding !== undefined) {
@@ -116,6 +126,7 @@ export function useBranding(): Branding | null {
     getBrandingOnce().then((result) => {
       if (!cancelled) {
         setBranding(result)
+        setResolved(true)
       }
     })
     return () => {
@@ -123,5 +134,5 @@ export function useBranding(): Branding | null {
     }
   }, [])
 
-  return branding
+  return { branding, resolved }
 }

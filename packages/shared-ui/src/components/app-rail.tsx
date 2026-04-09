@@ -11,7 +11,7 @@ import {
 import type { NavApp } from "../auth/app-catalog.ts"
 import type { PaneId } from "./pane-toolbar.tsx"
 import { usePrefetchApps } from "../hooks/use-prefetch-apps.ts"
-import { useBranding } from "../lib/branding.ts"
+import { useBrandingState } from "../lib/branding.ts"
 import { FeedbackPopover } from "./feedback-popover.tsx"
 import {
   Truck,
@@ -143,12 +143,12 @@ export function AppRail({
 }: AppRailProps) {
   const railApps = apps.filter((a) => a.railEnabled)
   usePrefetchApps(apps, activeAppId)
-  const branding = useBranding()
+  const { branding, resolved: brandingResolved } = useBrandingState()
 
   const lockupMode = branding?.lockupMode ?? "none"
   const logoSrc = branding?.logoSvg
     ? `data:image/svg+xml;utf8,${encodeURIComponent(branding.logoSvg)}`
-    : "/assets/landing/logo.svg"
+    : (brandingResolved ? "/assets/landing/logo.svg" : null)
   const lockupSrc = branding?.lockupSvg
     ? `data:image/svg+xml;utf8,${encodeURIComponent(branding.lockupSvg)}`
     : null
@@ -174,7 +174,14 @@ export function AppRail({
           <div className="flex w-20 shrink-0 items-center justify-center">
             {expanded ? (
               <a href="/">
-                <img className="h-9 w-9 shrink-0" src={logoSrc} alt="Haderach" />
+                {logoSrc ? (
+                  <img className="h-9 w-9 shrink-0" src={logoSrc} alt="Haderach" />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="h-9 w-9 shrink-0 rounded-md bg-chrome-hover/70"
+                  />
+                )}
               </a>
             ) : (
               <button
@@ -182,11 +189,18 @@ export function AppRail({
                 className="group relative inline-flex items-center rounded-md hover:bg-chrome-hover"
                 aria-label="Expand sidebar"
               >
-                <img
-                  className="h-9 w-9 shrink-0 transition-opacity duration-150 group-hover:opacity-0"
-                  src={logoSrc}
-                  alt="Haderach"
-                />
+                {logoSrc ? (
+                  <img
+                    className="h-9 w-9 shrink-0 transition-opacity duration-150 group-hover:opacity-0"
+                    src={logoSrc}
+                    alt="Haderach"
+                  />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="h-9 w-9 shrink-0 rounded-md bg-chrome-hover/70 transition-opacity duration-150 group-hover:opacity-0"
+                  />
+                )}
                 <PanelLeft className="absolute inset-0 m-auto h-5 w-5 text-chrome-text-strong opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
               </button>
             )}

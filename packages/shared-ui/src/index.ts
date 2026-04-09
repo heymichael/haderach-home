@@ -125,12 +125,12 @@ export {
   getAccessibleAdminApps,
 } from "./auth/app-catalog.ts"
 export type { BaseAuthUser } from "./auth/base-auth-user.ts"
-export type { UserDoc } from "./auth/user-doc.ts"
+export type { BaseUserDoc, UserDoc } from "./auth/user-doc.ts"
 export { fetchUserDoc, buildDisplayName } from "./auth/user-doc.ts"
 export { getAuthRuntimeConfig } from "./auth/runtime-config.ts"
 export type { FirebaseWebConfig } from "./auth/runtime-config.ts"
 export { AuthGate, AuthUserContext, useAuthUser } from "./auth/auth-gate.tsx"
-export type { AuthGateProps } from "./auth/auth-gate.tsx"
+export type { AuthGateProps, AuthGateCallbacks } from "./auth/auth-gate.tsx"
 export {
   Dialog,
   DialogTrigger,

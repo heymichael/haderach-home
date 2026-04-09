@@ -19,11 +19,13 @@ import {
   ADMIN_CATALOG,
 } from './app-catalog.ts'
 import { fetchUserDoc, buildDisplayName } from './user-doc.ts'
+import type { UserDoc } from './user-doc.ts'
 import { getAuthRuntimeConfig } from './runtime-config.ts'
 import type { BaseAuthUser } from './base-auth-user.ts'
 import { Button } from '../components/ui/button.tsx'
 
 const PLATFORM_SIGN_IN_URL = '/'
+const TOKEN_REFRESH_MS = 55 * 60 * 1000
 
 function getFirebaseAppInstance(): FirebaseApp | null {
   const runtimeConfig = getAuthRuntimeConfig()
@@ -36,27 +38,45 @@ function getFirebaseAppInstance(): FirebaseApp | null {
   return initializeApp(runtimeConfig.firebaseConfig)
 }
 
-export const AuthUserContext = createContext<BaseAuthUser | null>(null)
+type AuthUserValue = BaseAuthUser & Record<string, unknown>
 
-export function useAuthUser(): BaseAuthUser {
+export const AuthUserContext = createContext<AuthUserValue | null>(null)
+
+export function useAuthUser<TExtra extends object = Record<string, never>>(): BaseAuthUser & TExtra {
   const ctx = useContext(AuthUserContext)
   if (!ctx) throw new Error('useAuthUser must be used within AuthGate')
-  return ctx
+  return ctx as BaseAuthUser & TExtra
 }
 
 type AuthStatus = 'loading' | 'redirecting' | 'sign_in' | 'authorized' | 'unauthorized' | 'config_error'
 
-export interface AuthGateProps {
+export interface AuthGateCallbacks<TExtra extends object = Record<string, never>> {
+  onUserDocLoaded?: (userDoc: UserDoc) => void
+  onAuthorized?: (payload: { userDoc: UserDoc, roles: string[], extra: TExtra }) => void
+  onAccessDenied?: (payload: { userDoc: UserDoc, roles: string[] }) => void
+  onSignOut?: () => void
+}
+
+export interface AuthGateProps<TExtra extends object = Record<string, never>> {
   appPath: string
   appId: string
   children: ReactNode
+  mapUserDocToExtra?: (userDoc: UserDoc) => TExtra
+  callbacks?: AuthGateCallbacks<TExtra>
 }
 
-export function AuthGate({ appPath, appId, children }: AuthGateProps) {
+export function AuthGate<TExtra extends object = Record<string, never>>({
+  appPath,
+  appId,
+  children,
+  mapUserDocToExtra,
+  callbacks,
+}: AuthGateProps<TExtra>) {
   const runtimeConfig = useMemo(() => getAuthRuntimeConfig(), [])
   const [user, setUser] = useState<User | null>(null)
   const [roles, setRoles] = useState<string[]>([])
   const [displayName, setDisplayName] = useState<string | undefined>()
+  const [extra, setExtra] = useState<TExtra>(() => ({} as TExtra))
   const [status, setStatus] = useState<AuthStatus>(() => {
     if (runtimeConfig.bypassAuth) {
       return 'authorized'
@@ -78,9 +98,24 @@ export function AuthGate({ appPath, appId, children }: AuthGateProps) {
       return
     }
     const auth = getAuth(app)
+    let refreshTimer: number | undefined
+    const clearRefreshTimer = () => {
+      if (refreshTimer !== undefined) {
+        window.clearInterval(refreshTimer)
+        refreshTimer = undefined
+      }
+    }
+    const startRefreshTimer = (nextUser: User) => {
+      clearRefreshTimer()
+      refreshTimer = window.setInterval(() => {
+        void nextUser.getIdToken(true).catch(() => {})
+      }, TOKEN_REFRESH_MS)
+    }
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser)
+      clearRefreshTimer()
       if (!nextUser) {
+        setExtra({} as TExtra)
         if (import.meta.env.DEV) {
           setStatus('sign_in')
         } else {
@@ -91,21 +126,30 @@ export function AuthGate({ appPath, appId, children }: AuthGateProps) {
         }
         return
       }
+      startRefreshTimer(nextUser)
       setStatus('loading')
       fetchUserDoc(() => nextUser.getIdToken()).then((userDoc) => {
+        callbacks?.onUserDocLoaded?.(userDoc)
         const fetchedRoles = userDoc.roles
+        const mappedExtra = mapUserDocToExtra ? mapUserDocToExtra(userDoc) : ({} as TExtra)
         setRoles(fetchedRoles)
+        setExtra(mappedExtra)
         setDisplayName(buildDisplayName(userDoc.firstName, userDoc.lastName))
         if (hasAppAccess(fetchedRoles, appId)) {
           setStatus('authorized')
+          callbacks?.onAuthorized?.({ userDoc, roles: fetchedRoles, extra: mappedExtra })
         } else {
           setStatus('unauthorized')
+          callbacks?.onAccessDenied?.({ userDoc, roles: fetchedRoles })
         }
       })
     })
     setPersistence(auth, browserLocalPersistence).catch(() => {})
-    return unsubscribe
-  }, [runtimeConfig.bypassAuth, runtimeConfig.configError, appPath, appId])
+    return () => {
+      clearRefreshTimer()
+      unsubscribe()
+    }
+  }, [runtimeConfig.bypassAuth, runtimeConfig.configError, appPath, appId, mapUserDocToExtra, callbacks])
 
   const signOutCurrentUser = async () => {
     const app = getFirebaseAppInstance()
@@ -116,6 +160,7 @@ export function AuthGate({ appPath, appId, children }: AuthGateProps) {
     setAuthBusy(true)
     try {
       await signOut(getAuth(app))
+      callbacks?.onSignOut?.()
     } finally {
       setAuthBusy(false)
     }
@@ -134,6 +179,7 @@ export function AuthGate({ appPath, appId, children }: AuthGateProps) {
           accessibleApps,
           signOut: signOutCurrentUser,
           getIdToken: async () => user?.getIdToken() ?? '',
+          ...extra,
         }}
       >
         {children}
@@ -142,7 +188,21 @@ export function AuthGate({ appPath, appId, children }: AuthGateProps) {
   }
 
   if (status === 'loading' || status === 'redirecting') {
-    return null
+    return (
+      <main className="auth-gate-shell">
+        <section className="auth-gate-card" aria-live="polite" aria-busy="true">
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground"
+              aria-hidden="true"
+            />
+            <p className="text-sm text-muted-foreground">
+              {status === 'redirecting' ? 'Redirecting to sign-in...' : 'Loading...'}
+            </p>
+          </div>
+        </section>
+      </main>
+    )
   }
 
   if (status === 'sign_in') {

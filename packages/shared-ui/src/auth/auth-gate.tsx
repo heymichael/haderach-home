@@ -26,6 +26,7 @@ import { Button } from '../components/ui/button.tsx'
 
 const PLATFORM_SIGN_IN_URL = '/'
 const TOKEN_REFRESH_MS = 55 * 60 * 1000
+const LOADING_UI_DELAY_MS = 250
 
 function getFirebaseAppInstance(): FirebaseApp | null {
   const runtimeConfig = getAuthRuntimeConfig()
@@ -77,6 +78,7 @@ export function AuthGate<TExtra extends object = Record<string, never>>({
   const [roles, setRoles] = useState<string[]>([])
   const [displayName, setDisplayName] = useState<string | undefined>()
   const [extra, setExtra] = useState<TExtra>(() => ({} as TExtra))
+  const [showLoadingUi, setShowLoadingUi] = useState(false)
   const [status, setStatus] = useState<AuthStatus>(() => {
     if (runtimeConfig.bypassAuth) {
       return 'authorized'
@@ -151,6 +153,15 @@ export function AuthGate<TExtra extends object = Record<string, never>>({
     }
   }, [runtimeConfig.bypassAuth, runtimeConfig.configError, appPath, appId, mapUserDocToExtra, callbacks])
 
+  useEffect(() => {
+    if (status !== 'loading' && status !== 'redirecting') {
+      setShowLoadingUi(false)
+      return
+    }
+    const timer = window.setTimeout(() => setShowLoadingUi(true), LOADING_UI_DELAY_MS)
+    return () => window.clearTimeout(timer)
+  }, [status])
+
   const signOutCurrentUser = async () => {
     const app = getFirebaseAppInstance()
     if (!app) {
@@ -188,6 +199,10 @@ export function AuthGate<TExtra extends object = Record<string, never>>({
   }
 
   if (status === 'loading' || status === 'redirecting') {
+    if (!showLoadingUi) {
+      // Avoid spinner/card flashes for fast auth transitions during app switches.
+      return null
+    }
     return (
       <main className="auth-gate-shell">
         <section className="auth-gate-card" aria-live="polite" aria-busy="true">

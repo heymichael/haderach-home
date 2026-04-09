@@ -26,7 +26,16 @@ import {
 const RAIL_STORAGE_KEY = "haderach-rail-expanded"
 
 export function useRailExpanded(): [boolean, () => void] {
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded] = useState(() => {
+    try {
+      const stored = localStorage.getItem(RAIL_STORAGE_KEY)
+      if (stored === "true") return true
+      if (stored === "false") return false
+    } catch {
+      // Storage can be unavailable in some browser contexts.
+    }
+    return true
+  })
 
   const toggle = useCallback(() => {
     setExpanded((prev) => {

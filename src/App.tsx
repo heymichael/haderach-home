@@ -1,8 +1,7 @@
 import { useEffect } from "react"
-import { GlobalNav, AppRail, useRailExpanded, Card, CardContent, Button, getAccessibleRailApps } from "@haderach/shared-ui"
+import { GlobalNav, AppRail, useRailExpanded, Card, CardContent, getAccessibleRailApps } from "@haderach/shared-ui"
 import type { NavApp } from "@haderach/shared-ui"
 import { useAuth, type AuthState } from "./auth/use-auth.ts"
-import { getReturnTo, returnToAppId, APP_CATALOG } from "./auth/roles.ts"
 import { SettingsHub } from "./SettingsHub.tsx"
 import { Footer } from "./components/Footer.tsx"
 import { LegalPage } from "./pages/LegalPage.tsx"
@@ -46,30 +45,6 @@ function buildNavProps(
     default:
       return base
   }
-}
-
-function ReturnToPrompt({ onSignIn }: { onSignIn: () => void }) {
-  const returnTo = getReturnTo()
-  if (!returnTo) return null
-
-  const appId = returnToAppId(returnTo)
-  const app = appId ? APP_CATALOG.find((a) => a.id === appId) : null
-  const label = app?.label ?? "your app"
-
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-8 py-6 text-center">
-      <p className="text-foreground-muted">
-        Sign in to continue to <strong className="text-foreground">{label}</strong>
-      </p>
-      <Button
-        variant="outline"
-        onClick={onSignIn}
-        className="border-border text-foreground hover:border-border-hover hover:bg-surface-hover"
-      >
-        Sign in with Google
-      </Button>
-    </div>
-  )
 }
 
 function isSettingsPath(): boolean {
@@ -132,7 +107,6 @@ function App() {
   }
 
   const navProps = buildNavProps(state, handleSignIn, handleSignOut)
-  const showReturnToPrompt = state.status === "signed-out" && getReturnTo()
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -162,12 +136,6 @@ function App() {
                     <p className="text-error">{state.message}</p>
                   </CardContent>
                 </Card>
-              </div>
-            )}
-
-            {showReturnToPrompt && (
-              <div className="pt-12">
-                <ReturnToPrompt onSignIn={handleSignIn} />
               </div>
             )}
           </>

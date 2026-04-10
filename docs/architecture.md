@@ -12,8 +12,10 @@ haderach-home/
 │   ├── rules/
 │   │   ├── architecture-pointer.mdc
 │   │   ├── branch-safety-reminder.mdc
+│   │   ├── cross-repo-status.mdc
 │   │   ├── pr-conventions.mdc
 │   │   ├── repo-hygiene.mdc
+│   │   ├── service-oriented-data-access.mdc
 │   │   └── todo-conventions.mdc
 │   └── skills/
 │       └── brand-guidelines/
@@ -22,6 +24,7 @@ haderach-home/
 │   ├── pull_request_template.md
 │   └── workflows/
 │       ├── ci.yml
+│       ├── deploy-storybook.yml
 │       └── publish-artifact.yml
 ├── docs/
 │   └── architecture.md
@@ -83,6 +86,11 @@ haderach-home/
 │   │   ├── firebase.ts
 │   │   ├── roles.ts
 │   │   └── use-auth.ts
+│   ├── components/
+│   │   └── Footer.tsx
+│   ├── pages/
+│   │   ├── LegalPage.tsx          # Renders Termly legal docs in iframe
+│   │   └── QuickBooksIntegrationPage.tsx  # QBO connect/disconnected flows
 │   ├── index.css
 │   ├── main.tsx
 │   └── vite-env.d.ts
@@ -175,7 +183,12 @@ The package exports:
 - **PaneToolbar**: Thin horizontal toolbar (h-12) with toggle icons for chat, analytics, and data panes. Clicking an icon snaps that pane to full width.
 - **PaneLayout**: Resizable three-pane content area (chat | analytics | data) using `react-resizable-panels`. Fixed left-to-right order, drag handles between panes, collapsible with minimum size threshold.
 - **ChatPanel**: Chat interface component with tool-calling agent integration. Features: tool message replay for multi-turn context, CSV download buttons, inline disambiguation radio buttons, pending action handling (`confirm_edit` / `confirm_csv_batch`), per-message thumbs up/down feedback with session tracking. Supports `mode="panel"` (fills container — for use inside `PaneLayout`) and `mode="standalone"` (legacy overlay behavior).
+- **ChatTable**: Renders tabular data returned by the chat agent directly in the conversation thread. Accepts a `ChatTablePayload` (column definitions + rows).
+- **ViewModeToggle**: Switches between `"table"` and `"detail"` view modes. Used in data panes for toggling between list and single-record views.
 - **ChatToggle**: Standalone button to open/close a ChatPanel overlay. Used by apps that haven't adopted PaneLayout.
+- **AuthGate**: Reusable auth wrapper component that handles the full auth lifecycle (loading, signed-out redirect, unauthorized, authorized). Provides `AuthUserContext` and `useAuthUser` hook. Used by all consumer apps except haderach-home (which has its own auth flow).
+- **Dialog**: Modal dialog primitives (Dialog, DialogTrigger, DialogClose, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription).
+- **Popover**: Floating popover primitives (Popover, PopoverTrigger, PopoverContent, PopoverAnchor).
 - **App catalog and RBAC helpers**: `APP_CATALOG`, `APP_GRANTING_ROLES`, `ADMIN_CATALOG`, `ADMIN_GRANTING_ROLES`, `hasAppAccess`, `getAccessibleApps`, `getAccessibleRailApps`, `getAccessibleAdminApps`. Single source of truth for app entries, admin app entries, and role-based access control — app repos import these instead of maintaining local copies. `NavApp` includes optional `icon` (lucide icon key) and `railEnabled` fields for the domain shell layout.
 - **Auth primitives**: `BaseAuthUser` interface (common auth context shape), `UserDoc` interface and `fetchUserDoc` (calls `/agent/api/me`), `buildDisplayName`. Apps with no extra fields re-export `BaseAuthUser` as their `AuthUser`; apps with extensions (e.g. vendors) use `interface AuthUser extends BaseAuthUser`.
 - **Hooks**: `useIsMobile` (responsive breakpoint), `usePrefetchApps` (idle-time prefetch of sibling app bundles for instant domain switching).
@@ -209,9 +222,8 @@ The domain shell is the standard app layout for business domain apps (vendors, s
 
 | App | Status |
 |-----|--------|
-| vendors | Migrated |
-| stocks | Pending (railEnabled: false) |
-| card | Pending (railEnabled: false) |
+| expenses | Migrated (railEnabled: true) |
+| vendors | Migrated (railEnabled: true) |
 | admin-vendors | Uses legacy GlobalNav |
 | admin-system | Uses legacy GlobalNav |
 
@@ -221,8 +233,8 @@ Each domain app maps the three panes to its own content:
 
 | Domain | Chat | Analytics | Data |
 |--------|------|-----------|------|
+| Expenses | ChatPanel (agent) | Expense views | DataTable |
 | Vendors | ChatPanel (agent) | Spending views | VendorList/DataTable |
-| Commodities | Coming soon | Stocks views | Coming soon |
 
 ## Settings Hub
 

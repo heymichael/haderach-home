@@ -121,7 +121,12 @@ function FilterableHeader<TData = any>({ column, label }: FilterableHeaderProps<
 
 const setFilterFn = (row: { getValue: (id: string) => unknown }, columnId: string, filterValue: string[]) => {
   if (!filterValue?.length) return true
-  return filterValue.includes((row.getValue(columnId) as string) ?? "")
+  const raw = row.getValue(columnId)
+  const val = (raw as string) ?? ""
+  const hasValue = val !== ""
+  if (filterValue.includes("*")) return hasValue
+  if (filterValue.includes("")) return !hasValue
+  return filterValue.includes(val)
 }
 
 export { FilterableHeader, setFilterFn }

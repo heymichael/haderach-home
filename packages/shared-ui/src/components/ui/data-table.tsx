@@ -8,7 +8,14 @@ import {
   getFacetedUniqueValues,
   flexRender,
 } from "@tanstack/react-table"
-import type { ColumnDef, SortingState, ColumnSizingState, ColumnFiltersState } from "@tanstack/react-table"
+import type {
+  ColumnDef,
+  SortingState,
+  ColumnSizingState,
+  ColumnFiltersState,
+  VisibilityState,
+  OnChangeFn,
+} from "@tanstack/react-table"
 import { Download, Search, X } from "lucide-react"
 
 import { cn } from "../../lib/utils.ts"
@@ -57,6 +64,10 @@ interface DataTableProps<TData> {
   enableSearch?: boolean
   enableColumnFilters?: boolean
   getRowId?: (row: TData) => string
+  columnFilters?: ColumnFiltersState
+  onColumnFiltersChange?: OnChangeFn<ColumnFiltersState>
+  columnVisibility?: VisibilityState
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>
 }
 
 export function DataTable<TData>({
@@ -68,11 +79,21 @@ export function DataTable<TData>({
   enableSearch = false,
   enableColumnFilters = false,
   getRowId,
+  columnFilters: controlledFilters,
+  onColumnFiltersChange: controlledOnFiltersChange,
+  columnVisibility: controlledVisibility,
+  onColumnVisibilityChange: controlledOnVisibilityChange,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [internalFilters, setInternalFilters] = useState<ColumnFiltersState>([])
+  const [internalVisibility, setInternalVisibility] = useState<VisibilityState>({})
   const [search, setSearch] = useState("")
+
+  const activeFilters = controlledFilters ?? internalFilters
+  const activeOnFiltersChange = controlledOnFiltersChange ?? setInternalFilters
+  const activeVisibility = controlledVisibility ?? internalVisibility
+  const activeOnVisibilityChange = controlledOnVisibilityChange ?? setInternalVisibility
 
   const accessorKeys = useMemo(
     () =>
@@ -103,11 +124,17 @@ export function DataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    ...(enableColumnFilters && { onColumnFiltersChange: setColumnFilters }),
+    ...(enableColumnFilters && { onColumnFiltersChange: activeOnFiltersChange }),
     onSortingChange: setSorting,
     onColumnSizingChange: setColumnSizing,
+    onColumnVisibilityChange: activeOnVisibilityChange,
     columnResizeMode: "onChange",
-    state: { sorting, columnSizing, ...(enableColumnFilters && { columnFilters }) },
+    state: {
+      sorting,
+      columnSizing,
+      columnVisibility: activeVisibility,
+      ...(enableColumnFilters && { columnFilters: activeFilters }),
+    },
     getRowId,
   })
 

@@ -65,11 +65,18 @@ export interface ChatPanelHandle {
   addMessage: (msg: ChatMessage) => void
 }
 
+export interface TableViewContext {
+  visibleColumns?: string[]
+  activeFilters?: Array<{ column: string; values: string[] }>
+  dataPaneOpen?: boolean
+}
+
 export interface ChatPanelProps {
   open?: boolean
   onClose?: () => void
   mode?: "standalone" | "panel"
   appContext: string
+  tableViewContext?: TableViewContext
   getIdToken?: () => Promise<string>
   onToolResult?: (toolNames: string[]) => void
   onPendingAction?: (actions: ChatPendingAction[]) => void
@@ -84,6 +91,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
   onClose,
   mode = "standalone",
   appContext,
+  tableViewContext,
   getIdToken,
   onToolResult,
   onPendingAction,
@@ -145,7 +153,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           if (m.tool_call_id) msg.tool_call_id = m.tool_call_id
           return msg
         }),
-        context: { app: appContext },
+        context: { app: appContext, ...(tableViewContext && { tableView: tableViewContext }) },
       }
       if (sessionId) {
         payload.session_id = sessionId
@@ -216,7 +224,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     } finally {
       setLoading(false)
     }
-  }, [loading, disabled, messages, getIdToken, appContext, onToolResult, onPendingAction, attachment, sessionId])
+  }, [loading, disabled, messages, getIdToken, appContext, tableViewContext, onToolResult, onPendingAction, attachment, sessionId])
 
   const send = useCallback(() => {
     const text = input.trim()

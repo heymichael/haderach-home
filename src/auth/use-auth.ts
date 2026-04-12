@@ -5,9 +5,8 @@ import {
   signOut,
   type User,
 } from "firebase/auth"
-import { doc, getDoc } from "firebase/firestore"
 import { initFirebase, googleProvider } from "./firebase.ts"
-import { buildDisplayName } from "@haderach/shared-ui"
+import { buildDisplayName, fetchUserDoc } from "@haderach/shared-ui"
 import {
   APP_CATALOG,
   getAccessibleApps,
@@ -35,35 +34,6 @@ function shouldBypassAuth(): boolean {
   return params.get("authBypass") === "1"
 }
 
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase()
-}
-
-interface UserDoc {
-  roles: string[]
-  firstName: string
-  lastName: string
-}
-
-async function fetchUserDoc(
-  db: import("firebase/firestore").Firestore,
-  email: string,
-): Promise<UserDoc> {
-  const empty: UserDoc = { roles: [], firstName: "", lastName: "" }
-  try {
-    const snap = await getDoc(doc(db, "users", normalizeEmail(email)))
-    if (!snap.exists()) return empty
-    const data = snap.data()
-    return {
-      roles: Array.isArray(data.roles) ? data.roles : [],
-      firstName: typeof data.first_name === "string" ? data.first_name : "",
-      lastName: typeof data.last_name === "string" ? data.last_name : "",
-    }
-  } catch {
-    return empty
-  }
-}
-
 export function useAuth() {
   const [state, setState] = useState<AuthState>(() => {
     if (shouldBypassAuth()) {
@@ -71,16 +41,15 @@ export function useAuth() {
         status: "authorized",
         user: { email: "dev@haderach.ai" } as User,
         apps: APP_CATALOG,
-        roles: ["admin", "finance_admin"],
+        roles: ["admin", "finance_admin", "investor", "home"],
         profile: { displayName: "Dev User" },
       }
     }
     return { status: "loading" }
   })
-  const [firebaseReady, setFirebaseReady] = useState<{
-    auth: import("firebase/auth").Auth
-    db: import("firebase/firestore").Firestore
-  } | null>(null)
+  const [firebaseAuth, setFirebaseAuth] = useState<
+    import("firebase/auth").Auth | null
+  >(null)
 
   useEffect(() => {
     if (shouldBypassAuth()) return
@@ -89,7 +58,7 @@ export function useAuth() {
 
     initFirebase()
       .then((fb) => {
-        if (!cancelled) setFirebaseReady(fb)
+        if (!cancelled) setFirebaseAuth(fb.auth)
       })
       .catch(() => {
         if (!cancelled)
@@ -106,25 +75,25 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    if (!firebaseReady) return
+    if (!firebaseAuth) return
 
-    const { auth, db } = firebaseReady
-
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) {
         setState({ status: "signed-out" })
         return
       }
 
       setState({ status: "loading" })
-      const userDoc = await fetchUserDoc(db, user.email ?? "")
+      const userDoc = await fetchUserDoc(() => user.getIdToken())
       const profile: UserProfile = {
         displayName: buildDisplayName(userDoc.firstName, userDoc.lastName),
         photoURL: user.photoURL ?? undefined,
       }
       const accessible = getAccessibleApps(userDoc.roles)
+      const HOME_ROLES = ["home", "investor"]
+      const hasHomeAccess = userDoc.roles.some((r) => HOME_ROLES.includes(r))
 
-      if (accessible.length === 0) {
+      if (accessible.length === 0 && !hasHomeAccess) {
         setState({ status: "no-access", user, profile })
         return
       }
@@ -142,12 +111,12 @@ export function useAuth() {
     })
 
     return unsubscribe
-  }, [firebaseReady])
+  }, [firebaseAuth])
 
   async function handleSignIn() {
-    if (!firebaseReady) return
+    if (!firebaseAuth) return
     try {
-      await signInWithPopup(firebaseReady.auth, googleProvider)
+      await signInWithPopup(firebaseAuth, googleProvider)
     } catch (err) {
       if (
         err != null &&
@@ -164,8 +133,8 @@ export function useAuth() {
   }
 
   async function handleSignOut() {
-    if (!firebaseReady) return
-    await signOut(firebaseReady.auth)
+    if (!firebaseAuth) return
+    await signOut(firebaseAuth)
   }
 
   return { state, handleSignIn, handleSignOut }

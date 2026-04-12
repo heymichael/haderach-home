@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="w-full border-t border-border bg-background py-4">
+    <footer className="w-full border-t border-border bg-background py-6">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 text-sm text-foreground-muted">
         <a href="/legal/privacy" className="hover:text-foreground transition-colors">
           Privacy Policy

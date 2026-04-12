@@ -6,15 +6,13 @@ import {
   setPersistence,
   type Auth,
 } from "firebase/auth"
-import { getFirestore, type Firestore } from "firebase/firestore"
 import { getAuthRuntimeConfig } from "@haderach/shared-ui"
 
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
-let db: Firestore | null = null
 
-export async function initFirebase(): Promise<{ auth: Auth; db: Firestore }> {
-  if (auth && db) return { auth, db }
+export async function initFirebase(): Promise<{ auth: Auth }> {
+  if (auth) return { auth }
 
   const runtimeConfig = getAuthRuntimeConfig()
   if (!runtimeConfig.firebaseConfig) {
@@ -24,21 +22,15 @@ export async function initFirebase(): Promise<{ auth: Auth; db: Firestore }> {
 
   app = initializeApp(config)
   auth = getAuth(app)
-  db = getFirestore(app)
 
   await setPersistence(auth, browserLocalPersistence).catch(() => {})
 
-  return { auth, db }
+  return { auth }
 }
 
 export function getFirebaseAuth(): Auth {
   if (!auth) throw new Error("Firebase not initialized")
   return auth
-}
-
-export function getFirebaseDb(): Firestore {
-  if (!db) throw new Error("Firebase not initialized")
-  return db
 }
 
 export const googleProvider = new GoogleAuthProvider()

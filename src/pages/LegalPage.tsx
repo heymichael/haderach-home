@@ -1,3 +1,5 @@
+import { useParams } from "react-router-dom"
+
 const LEGAL_DOCS: Record<string, { title: string; url: string }> = {
   privacy: {
     title: "Privacy Policy",
@@ -13,12 +15,9 @@ const LEGAL_DOCS: Record<string, { title: string; url: string }> = {
   },
 }
 
-function getLegalDoc(slug: string) {
-  return LEGAL_DOCS[slug] ?? null
-}
-
-export function LegalPage({ slug }: { slug: string }) {
-  const doc = getLegalDoc(slug)
+export function LegalPage() {
+  const { slug } = useParams<{ slug: string }>()
+  const doc = slug ? LEGAL_DOCS[slug] : null
 
   if (!doc) {
     return (

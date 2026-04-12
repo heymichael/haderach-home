@@ -71,7 +71,7 @@ export function useAuth() {
         status: "authorized",
         user: { email: "dev@haderach.ai" } as User,
         apps: APP_CATALOG,
-        roles: ["admin", "finance_admin"],
+        roles: ["admin", "finance_admin", "investor", "home"],
         profile: { displayName: "Dev User" },
       }
     }
@@ -123,8 +123,10 @@ export function useAuth() {
         photoURL: user.photoURL ?? undefined,
       }
       const accessible = getAccessibleApps(userDoc.roles)
+      const HOME_ROLES = ["home", "investor"]
+      const hasHomeAccess = userDoc.roles.some((r) => HOME_ROLES.includes(r))
 
-      if (accessible.length === 0) {
+      if (accessible.length === 0 && !hasHomeAccess) {
         setState({ status: "no-access", user, profile })
         return
       }

@@ -49,8 +49,7 @@ export function HomePage() {
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
               Frontline practitioners shape the platform through strategic
-              conversations, without ever touching code. Their domain expertise
-              steers what gets built.
+              conversations, without ever touching code.
             </p>
           </div>
           <div className="rounded-xl border border-border p-5">

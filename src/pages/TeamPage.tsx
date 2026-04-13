@@ -6,11 +6,11 @@ export function TeamPage() {
           Team
         </p>
 
-        <div className="flex flex-col items-start gap-8 sm:flex-row">
+        <div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center">
           <img
             src="/headshot_color_circle.png"
             alt="Michael Mader"
-            className="h-28 w-28 shrink-0 rounded-full"
+            className="mt-4 h-28 w-28 shrink-0 rounded-full"
           />
           <div>
             <h2 className="text-xl font-semibold text-foreground mb-4">
@@ -22,7 +22,8 @@ export function TeamPage() {
               110-person global analytics organization. He went on to own the
               e-commerce platform end-to-end at Minted as VP Engineering &amp;
               Analytics, then stepped in as interim VP Product Management at
-              Arcade.ai to shape an AI-enabled product strategy.               Michael values his personal connection to his team and is
+              Arcade.ai to shape an AI-enabled product strategy. Michael values
+              his personal connection to his team and is
               passionate about helping people grow and enabling them to leave
               positive change in their wake. He is a graduate of Williams
               College and the Stanford Graduate School of Business.

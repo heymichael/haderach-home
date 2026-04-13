@@ -21,12 +21,22 @@ import { BlogPostPage } from "./pages/BlogPostPage.tsx"
 import { CareersPage } from "./pages/CareersPage.tsx"
 import { TeamPage } from "./pages/TeamPage.tsx"
 import { InvestorsPage } from "./pages/InvestorsPage.tsx"
+import { SaasBillingVisibilityPage } from "./pages/SaasBillingVisibilityPage.tsx"
 
-const MARKETING_PATHS = ["/", "/blog", "/careers", "/team", "/investors"]
+const MARKETING_PATHS = [
+  "/",
+  "/blog",
+  "/careers",
+  "/team",
+  "/investors",
+  "/products/saas-billing-visibility",
+]
 
 function isMarketingPath(pathname: string): boolean {
   return (
-    MARKETING_PATHS.includes(pathname) || pathname.startsWith("/blog/")
+    MARKETING_PATHS.includes(pathname) ||
+    pathname.startsWith("/blog/") ||
+    pathname.startsWith("/products/")
   )
 }
 
@@ -196,6 +206,10 @@ function App() {
                 <Route path="/team" element={<TeamPage />} />
               </>
             )}
+            <Route
+              path="/products/saas-billing-visibility"
+              element={<SaasBillingVisibilityPage />}
+            />
             {hasInvestor && (
               <Route path="/investors" element={<InvestorsPage />} />
             )}

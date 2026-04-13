@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 
 const PRODUCTS = [
-  { label: "SaaS Spend Monitoring", href: "#" },
+  { label: "SaaS billing visibility", to: "/products/saas-billing-visibility" },
 ]
 
 function ChevronDown({ className }: { className?: string }) {
@@ -74,13 +74,14 @@ export function MarketingNav({
                   Products
                 </p>
                 {PRODUCTS.map((product) => (
-                  <a
+                  <Link
                     key={product.label}
-                    href={product.href}
+                    to={product.to}
+                    onClick={() => setProductsOpen(false)}
                     className="block rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
                   >
                     {product.label}
-                  </a>
+                  </Link>
                 ))}
               </div>
             )}

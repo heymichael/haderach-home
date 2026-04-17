@@ -76,6 +76,7 @@ export interface ChatPanelProps {
   onClose?: () => void
   mode?: "standalone" | "panel"
   appContext: string
+  extraContext?: Record<string, unknown>
   tableViewContext?: TableViewContext
   getIdToken?: () => Promise<string>
   onToolResult?: (toolNames: string[]) => void
@@ -91,6 +92,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
   onClose,
   mode = "standalone",
   appContext,
+  extraContext,
   tableViewContext,
   getIdToken,
   onToolResult,
@@ -153,7 +155,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           if (m.tool_call_id) msg.tool_call_id = m.tool_call_id
           return msg
         }),
-        context: { app: appContext, ...(tableViewContext && { tableView: tableViewContext }) },
+        context: { app: appContext, ...extraContext, ...(tableViewContext && { tableView: tableViewContext }) },
       }
       if (sessionId) {
         payload.session_id = sessionId
@@ -224,7 +226,7 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
     } finally {
       setLoading(false)
     }
-  }, [loading, disabled, messages, getIdToken, appContext, tableViewContext, onToolResult, onPendingAction, attachment, sessionId])
+  }, [loading, disabled, messages, getIdToken, appContext, extraContext, tableViewContext, onToolResult, onPendingAction, attachment, sessionId])
 
   const send = useCallback(() => {
     const text = input.trim()

@@ -9,11 +9,13 @@ export interface NavApp {
 export const APP_CATALOG: NavApp[] = [
   { id: "expenses", label: "Expenses", path: "/expenses/", icon: "receipt", railEnabled: true },
   { id: "vendors", label: "Vendors", path: "/vendors/", icon: "truck", railEnabled: true },
+  { id: "site", label: "Site", path: "/site/", icon: "globe", railEnabled: true },
 ]
 
 export const APP_GRANTING_ROLES: Record<string, string[]> = {
   expenses: ["user", "admin"],
   vendors: ["user", "admin"],
+  site: ["user", "admin"],
 }
 
 export const ADMIN_CATALOG: NavApp[] = [

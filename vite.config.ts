@@ -50,6 +50,10 @@ export default defineConfig({
         target: 'http://localhost:8080',
         rewrite: (p) => p.replace(/^\/agent\/api/, ''),
       },
+      '/cms/api': {
+        target: 'http://localhost:3000',
+        rewrite: (p) => p.replace(/^\/cms\/api/, '/api'),
+      },
     },
   },
 })

@@ -18,7 +18,7 @@ import { QuickBooksIntegrationPage } from "./pages/QuickBooksIntegrationPage.tsx
 import { HomePage } from "./pages/HomePage.tsx"
 import { BlogIndexPage } from "./pages/BlogIndexPage.tsx"
 import { BlogPostPage } from "./pages/BlogPostPage.tsx"
-import { CareersPage } from "./pages/CareersPage.tsx"
+import { CareerDetailPage, CareersPage } from "./pages/CareersPage.tsx"
 import { TeamPage } from "./pages/TeamPage.tsx"
 import { InvestorsPage } from "./pages/InvestorsPage.tsx"
 import { SaasBillingVisibilityPage } from "./pages/SaasBillingVisibilityPage.tsx"
@@ -36,6 +36,7 @@ function isMarketingPath(pathname: string): boolean {
   return (
     MARKETING_PATHS.includes(pathname) ||
     pathname.startsWith("/blog/") ||
+    pathname.startsWith("/careers/") ||
     pathname.startsWith("/products/")
   )
 }
@@ -203,6 +204,7 @@ function App() {
                 <Route path="/blog" element={<BlogIndexPage />} />
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
                 <Route path="/careers" element={<CareersPage />} />
+                <Route path="/careers/:slug" element={<CareerDetailPage />} />
                 <Route path="/team" element={<TeamPage />} />
               </>
             )}

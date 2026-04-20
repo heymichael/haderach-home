@@ -127,8 +127,16 @@ export {
   getAccessibleAdminApps,
 } from "./auth/app-catalog.ts"
 export type { BaseAuthUser } from "./auth/base-auth-user.ts"
-export type { BaseUserDoc, UserDoc } from "./auth/user-doc.ts"
+export type { BaseUserDoc, UserDoc, UserOrgMembership } from "./auth/user-doc.ts"
 export { fetchUserDoc, buildDisplayName } from "./auth/user-doc.ts"
+export {
+  pickInitialActiveOrg,
+  resolveActiveOrgSlug,
+  getStoredActiveOrgSlug,
+  setStoredActiveOrgSlug,
+  clearStoredActiveOrgSlug,
+} from "./auth/active-org.ts"
+export type { ActiveOrgSelection } from "./auth/active-org.ts"
 export { getAuthRuntimeConfig } from "./auth/runtime-config.ts"
 export type { FirebaseWebConfig } from "./auth/runtime-config.ts"
 export { AuthGate, AuthUserContext, useAuthUser } from "./auth/auth-gate.tsx"

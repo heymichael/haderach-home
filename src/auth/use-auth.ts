@@ -6,7 +6,12 @@ import {
   type User,
 } from "firebase/auth"
 import { initFirebase, googleProvider } from "./firebase.ts"
-import { buildDisplayName, fetchUserDoc } from "@haderach/shared-ui"
+import {
+  buildDisplayName,
+  fetchUserDoc,
+  resolveActiveOrgSlug,
+  clearStoredActiveOrgSlug,
+} from "@haderach/shared-ui"
 import {
   APP_CATALOG,
   getAccessibleApps,
@@ -79,12 +84,22 @@ export function useAuth() {
 
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) {
+        // Multi-org tenancy (task 254 phase 7 / strategy 197-r2): drop the
+        // persisted active-org slug so the next signed-in session re-resolves
+        // from /me instead of carrying over the previous user's tenant.
+        clearStoredActiveOrgSlug()
         setState({ status: "signed-out" })
         return
       }
 
       setState({ status: "loading" })
       const userDoc = await fetchUserDoc(() => user.getIdToken())
+      // Persist active-org slug to localStorage so agentFetch can attach
+      // X-Active-Org on every subsequent agent request. Single-membership
+      // users (every prod user today) auto-resolve here; multi-membership
+      // users without a valid persisted choice get undefined and the picker
+      // UI (task 262) will eventually pick.
+      resolveActiveOrgSlug(userDoc)
       const profile: UserProfile = {
         displayName: buildDisplayName(userDoc.firstName, userDoc.lastName),
         photoURL: user.photoURL ?? undefined,
@@ -135,6 +150,7 @@ export function useAuth() {
   async function handleSignOut() {
     if (!firebaseAuth) return
     await signOut(firebaseAuth)
+    clearStoredActiveOrgSlug()
   }
 
   return { state, handleSignIn, handleSignOut }

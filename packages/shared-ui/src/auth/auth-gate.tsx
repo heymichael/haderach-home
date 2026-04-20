@@ -20,6 +20,7 @@ import {
 } from './app-catalog.ts'
 import { fetchUserDoc, buildDisplayName } from './user-doc.ts'
 import type { UserDoc } from './user-doc.ts'
+import { resolveActiveOrgSlug, clearStoredActiveOrgSlug } from './active-org.ts'
 import { getAuthRuntimeConfig } from './runtime-config.ts'
 import type { BaseAuthUser } from './base-auth-user.ts'
 import { Button } from '../components/ui/button.tsx'
@@ -118,6 +119,7 @@ export function AuthGate<TExtra extends object = Record<string, never>>({
       clearRefreshTimer()
       if (!nextUser) {
         setExtra({} as TExtra)
+        clearStoredActiveOrgSlug()
         if (import.meta.env.DEV) {
           setStatus('sign_in')
         } else {
@@ -131,6 +133,12 @@ export function AuthGate<TExtra extends object = Record<string, never>>({
       startRefreshTimer(nextUser)
       setStatus('loading')
       fetchUserDoc(() => nextUser.getIdToken()).then((userDoc) => {
+        // Persist active org slug to localStorage so agentFetch can attach
+        // X-Active-Org on every subsequent agent request (task 254 phase 7).
+        // Single-membership users (every prod user today) auto-resolve here;
+        // multi-membership users without a valid persisted choice get
+        // undefined and the picker UI (task 262) will eventually pick.
+        resolveActiveOrgSlug(userDoc)
         callbacks?.onUserDocLoaded?.(userDoc)
         const fetchedRoles = userDoc.roles
         const mappedExtra = mapUserDocToExtra ? mapUserDocToExtra(userDoc) : ({} as TExtra)
@@ -171,6 +179,7 @@ export function AuthGate<TExtra extends object = Record<string, never>>({
     setAuthBusy(true)
     try {
       await signOut(getAuth(app))
+      clearStoredActiveOrgSlug()
       callbacks?.onSignOut?.()
     } finally {
       setAuthBusy(false)

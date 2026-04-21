@@ -50,6 +50,12 @@ export default defineConfig({
         target: 'http://localhost:8080',
         rewrite: (p) => p.replace(/^\/agent\/api/, ''),
       },
+      '/cms/api': {
+        target: 'http://localhost:3000',
+        // Passthrough — Payload serves natively at /cms/api/** locally
+        // (basePath: '/cms' in haderach-cms/next.config.ts). Matches the
+        // production Firebase Hosting `/cms/api/**` rewrite to cms-api Cloud Run.
+      },
     },
   },
 })

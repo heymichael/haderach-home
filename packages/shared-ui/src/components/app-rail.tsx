@@ -18,6 +18,7 @@ import {
   Gauge,
   CreditCard,
   Layers,
+  LayoutTemplate,
   Monitor,
   PanelLeft,
   Receipt,
@@ -54,6 +55,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   gauge: Gauge,
   "credit-card": CreditCard,
   layers: Layers,
+  "layout-template": LayoutTemplate,
   monitor: Monitor,
   receipt: Receipt,
 }

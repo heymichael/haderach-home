@@ -45,7 +45,6 @@ haderach-home/
 | `haderach-platform` | Deploy orchestration, hosting config, infra |
 | `agent` | Shared chat agent backend (API consumed by ChatPanel and auth) |
 | `vendors` | Vendor management app at `/vendors/` |
-| `card` | Card editor app at `/card/` |
 | `stocks` | Stocks app at `/stocks/` |
 | `admin-vendors` | Vendor admin app at `/admin/vendors/` |
 | `admin-system` | System admin app at `/admin/system/` |

@@ -142,7 +142,7 @@ This repository implements steps 1-4. Steps 5-7 run in the platform control plan
 ### Artifact format
 
 - Runtime artifact: `runtime.tar.gz` — compressed `dist/` directory from Vite build.
-- Unlike card/stocks, the tarball contains root-level files (not nested under an app subdirectory) because the home app is served at `/`.
+- Unlike other apps, the tarball contains root-level files (not nested under an app subdirectory) because the home app is served at `/`.
 
 ### GCS artifact paths
 
@@ -160,7 +160,6 @@ gs://<bucket>/home/versions/<commit-sha>/
 - This homepage app (via npm workspace resolution)
 - `admin-system` repo (via `file:` protocol locally, GitHub Packages for CI)
 - `vendors` repo (same)
-- `card` repo (same)
 - `stocks` repo (same)
 
 The package exports:

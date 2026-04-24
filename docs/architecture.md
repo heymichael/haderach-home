@@ -4,6 +4,11 @@
 
 `haderach-home` owns the Haderach platform homepage SPA and the shared UI design system (`@haderach/shared-ui`). It serves as the auth gateway and app launcher at `haderach.ai/`, and provides shared React components consumed by all app repos.
 
+## Cursor Rules
+
+Workspace-level Cursor rule coverage and `alwaysApply` settings are tracked in
+`../haderach-platform/docs/cursor-rule-matrix.md`.
+
 ## Repository Tree (ASCII)
 
 ```text

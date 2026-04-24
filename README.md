@@ -48,3 +48,6 @@ haderach-home/
 | `stocks` | Stocks app at `/stocks/` |
 | `admin-vendors` | Vendor admin app at `/admin/vendors/` |
 | `admin-system` | System admin app at `/admin/system/` |
+
+Workspace-level Cursor rule coverage is tracked in
+`../haderach-platform/docs/cursor-rule-matrix.md`.

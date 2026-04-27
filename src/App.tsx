@@ -22,6 +22,8 @@ import { CareerDetailPage, CareersPage } from "./pages/CareersPage.tsx"
 import { TeamPage } from "./pages/TeamPage.tsx"
 import { InvestorsPage } from "./pages/InvestorsPage.tsx"
 import { SaasBillingVisibilityPage } from "./pages/SaasBillingVisibilityPage.tsx"
+import { PreviewCollectionPage } from "./pages/PreviewCollectionPage.tsx"
+import { PreviewDetailPage } from "./pages/PreviewDetailPage.tsx"
 
 const MARKETING_PATHS = [
   "/",
@@ -129,6 +131,16 @@ function ReturnToHandler({ roles }: { roles: string[] }) {
 function App() {
   const { state, handleSignIn, handleSignOut } = useAuth()
   const location = useLocation()
+
+  // Preview routes are token-authenticated, not session-authenticated
+  if (location.pathname.startsWith("/preview/")) {
+    return (
+      <Routes>
+        <Route path="/preview/:collection" element={<PreviewCollectionPage />} />
+        <Route path="/preview/:collection/:slug" element={<PreviewDetailPage />} />
+      </Routes>
+    )
+  }
 
   if (
     state.status === "authorized" &&

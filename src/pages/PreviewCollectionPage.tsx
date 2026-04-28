@@ -92,13 +92,15 @@ function normalizePreviewContent(items: CmsContentItem[]): PreviewContent {
         title,
         status: item.workflow_status ?? "draft",
         metadata: metadataParts.join(" • "),
-        department,
+        department: department || undefined,
       } satisfies PreviewItem
     })
     .filter((item): item is PreviewItem => item !== null)
     .sort((left, right) => {
-      if (left.department && right.department) {
-        const deptCompare = left.department.localeCompare(right.department)
+      const leftDept = left.department ?? ""
+      const rightDept = right.department ?? ""
+      if (leftDept && rightDept) {
+        const deptCompare = leftDept.localeCompare(rightDept)
         if (deptCompare !== 0) return deptCompare
       }
       return left.title.localeCompare(right.title)

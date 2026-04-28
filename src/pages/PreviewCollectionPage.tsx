@@ -64,47 +64,49 @@ function slugify(value: string): string {
 function normalizePreviewContent(items: CmsContentItem[]): PreviewContent {
   let intro: RichTextValue = ""
 
-  const previewItems = items
-    .filter((item) => !item.preview_hidden)
-    .map((item) => {
-      const data = item.data ?? {}
-      const role = getString(data.role)
+  const previewItems: PreviewItem[] = []
 
-      if (role === "shared_intro") {
-        intro = getRichTextValue(data.body)
-        return null
-      }
+  for (const item of items) {
+    if (item.preview_hidden) continue
 
-      if (role.startsWith("shared_")) {
-        return null
-      }
+    const data = item.data ?? {}
+    const role = getString(data.role)
 
-      const title = getString(data.title) || getString(data.name) || `Item ${item.id}`
-      const department = getString(data.department)
-      const location = getString(data.location)
-      const employmentType = getString(data.employment_type)
+    if (role === "shared_intro") {
+      intro = getRichTextValue(data.body)
+      continue
+    }
 
-      const metadataParts = [department, location, employmentType].filter(Boolean)
+    if (role.startsWith("shared_")) {
+      continue
+    }
 
-      return {
-        id: String(item.id),
-        slug: getString(item.slug) || slugify(title),
-        title,
-        status: item.workflow_status ?? "draft",
-        metadata: metadataParts.join(" • "),
-        department: department || undefined,
-      } satisfies PreviewItem
+    const title = getString(data.title) || getString(data.name) || `Item ${item.id}`
+    const department = getString(data.department)
+    const location = getString(data.location)
+    const employmentType = getString(data.employment_type)
+
+    const metadataParts = [department, location, employmentType].filter(Boolean)
+
+    previewItems.push({
+      id: String(item.id),
+      slug: getString(item.slug) || slugify(title),
+      title,
+      status: item.workflow_status ?? "draft",
+      metadata: metadataParts.join(" • "),
+      department: department || undefined,
     })
-    .filter((item): item is PreviewItem => item !== null)
-    .sort((left, right) => {
-      const leftDept = left.department ?? ""
-      const rightDept = right.department ?? ""
-      if (leftDept && rightDept) {
-        const deptCompare = leftDept.localeCompare(rightDept)
-        if (deptCompare !== 0) return deptCompare
-      }
-      return left.title.localeCompare(right.title)
-    })
+  }
+
+  previewItems.sort((left, right) => {
+    const leftDept = left.department ?? ""
+    const rightDept = right.department ?? ""
+    if (leftDept && rightDept) {
+      const deptCompare = leftDept.localeCompare(rightDept)
+      if (deptCompare !== 0) return deptCompare
+    }
+    return left.title.localeCompare(right.title)
+  })
 
   return { intro, items: previewItems }
 }

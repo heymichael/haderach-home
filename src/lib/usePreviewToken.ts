@@ -14,29 +14,38 @@ export interface TokenValidation {
 export function usePreviewToken() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get("token")
-  const [validation, setValidation] = useState<TokenValidation | null>(null)
-  const [isValidating, setIsValidating] = useState(false)
+  const [validation, setValidation] = useState<TokenValidation | null>(
+    token ? null : { valid: false, error: "Missing token" }
+  )
 
   useEffect(() => {
     if (!token) {
-      setValidation({ valid: false, error: "Missing token" })
       return
     }
 
-    setIsValidating(true)
+    const controller = new AbortController()
 
-    fetch(`${CMS_API_BASE}/preview-token/validate?token=${encodeURIComponent(token)}`)
+    fetch(`${CMS_API_BASE}/preview-token/validate?token=${encodeURIComponent(token)}`, {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((data: TokenValidation) => {
-        setValidation(data)
+        if (!controller.signal.aborted) {
+          setValidation(data)
+        }
       })
-      .catch(() => {
-        setValidation({ valid: false, error: "Failed to validate token" })
+      .catch((err) => {
+        if (!controller.signal.aborted && err.name !== "AbortError") {
+          setValidation({ valid: false, error: "Failed to validate token" })
+        }
       })
-      .finally(() => {
-        setIsValidating(false)
-      })
+
+    return () => {
+      controller.abort()
+    }
   }, [token])
+
+  const isValidating = token !== null && validation === null
 
   return { token, validation, isValidating, isPreview: !!token }
 }

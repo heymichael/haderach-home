@@ -115,7 +115,7 @@ export type { AppRailProps } from "./components/app-rail.tsx"
 export { PaneToolbar } from "./components/pane-toolbar.tsx"
 export type { PaneToolbarProps, PaneId } from "./components/pane-toolbar.tsx"
 export { PaneLayout } from "./components/pane-layout.tsx"
-export type { PaneLayoutHandle, PaneLayoutProps } from "./components/pane-layout.tsx"
+export type { PaneLayoutHandle, PaneLayoutProps, DetailPaneId } from "./components/pane-layout.tsx"
 export {
   APP_CATALOG,
   APP_GRANTING_ROLES,

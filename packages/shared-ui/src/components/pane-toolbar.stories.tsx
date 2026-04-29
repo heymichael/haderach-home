@@ -17,6 +17,9 @@ export const Default: Story = {
       chat: true,
       analytics: false,
       data: false,
+      schedule: false,
+      admin: false,
+      media: false,
     });
     return (
       <PaneToolbar

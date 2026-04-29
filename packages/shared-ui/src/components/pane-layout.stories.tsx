@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { PaneLayout } from "./pane-layout.tsx";
+import type { DetailPaneId } from "./pane-layout.tsx";
 
 const meta: Meta<typeof PaneLayout> = {
   title: "Layout/PaneLayout",
@@ -22,9 +23,7 @@ const Placeholder = ({ label, bg }: { label: string; bg: string }) => (
 export const Default: Story = {
   render: function Render() {
     const [chatOpen, setChatOpen] = useState(true);
-    const [detail, setDetail] = useState<"analytics" | "data" | null>(
-      "analytics"
-    );
+    const [detail, setDetail] = useState<DetailPaneId | null>("analytics");
     return (
       <div style={{ height: 500 }}>
         <PaneLayout

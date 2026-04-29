@@ -11,13 +11,18 @@ export interface PaneLayoutHandle {
   togglePane: (id: PaneId) => void
 }
 
+export type DetailPaneId = "analytics" | "data" | "schedule" | "admin" | "media"
+
 export interface PaneLayoutProps {
   chatContent: ReactNode
   analyticsContent?: ReactNode
   dataContent: ReactNode
+  scheduleContent?: ReactNode
+  adminContent?: ReactNode
+  mediaContent?: ReactNode
   chatOpen: boolean
-  detailPane: "analytics" | "data" | null
-  onLayoutChange: (chat: boolean, detail: "analytics" | "data" | null) => void
+  detailPane: DetailPaneId | null
+  onLayoutChange: (chat: boolean, detail: DetailPaneId | null) => void
   className?: string
 }
 
@@ -27,6 +32,9 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
       chatContent,
       analyticsContent,
       dataContent,
+      scheduleContent,
+      adminContent,
+      mediaContent,
       chatOpen,
       detailPane,
       onLayoutChange,
@@ -43,7 +51,7 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
             onLayoutChange(true, detailPane)
           }
         } else {
-          const clickedDetail = id as "analytics" | "data"
+          const clickedDetail = id as DetailPaneId
           if (detailPane === clickedDetail) {
             onLayoutChange(chatOpen, null)
           } else {
@@ -97,6 +105,24 @@ export const PaneLayout = forwardRef<PaneLayoutHandle, PaneLayoutProps>(
           <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "data" && "hidden")}>
             {dataContent}
           </div>
+          {/* Schedule — mounted only when content is provided */}
+          {scheduleContent != null && (
+            <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "schedule" && "hidden")}>
+              {scheduleContent}
+            </div>
+          )}
+          {/* Admin — mounted only when content is provided */}
+          {adminContent != null && (
+            <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "admin" && "hidden")}>
+              {adminContent}
+            </div>
+          )}
+          {/* Media — mounted only when content is provided */}
+          {mediaContent != null && (
+            <div className={cn("flex flex-1 flex-col overflow-hidden", detailPane !== "media" && "hidden")}>
+              {mediaContent}
+            </div>
+          )}
         </div>
       </div>
     )

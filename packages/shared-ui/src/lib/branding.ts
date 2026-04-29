@@ -1,7 +1,20 @@
 import { useState, useEffect } from "react"
 
 const BASE = "/agent/api"
-const BRANDING_STORAGE_KEY = "haderach-branding-cache-v1"
+const BRANDING_STORAGE_KEY_PREFIX = "haderach-branding-v1:"
+
+function getOrgFromHostname(): string {
+  if (typeof window === "undefined") return "haderach"
+  const hostname = window.location.hostname
+  if (hostname.startsWith("arcade.")) {
+    return "arcade"
+  }
+  return "haderach"
+}
+
+function getBrandingStorageKey(): string {
+  return `${BRANDING_STORAGE_KEY_PREFIX}${getOrgFromHostname()}`
+}
 
 export type LockupMode = "none" | "text" | "swap"
 
@@ -33,7 +46,7 @@ function isBranding(value: unknown): value is Branding {
 
 function readStoredBranding(): Branding | null | undefined {
   try {
-    const raw = localStorage.getItem(BRANDING_STORAGE_KEY)
+    const raw = localStorage.getItem(getBrandingStorageKey())
     if (!raw) return undefined
     const parsed = JSON.parse(raw) as unknown
     return isBranding(parsed) ? parsed : undefined
@@ -44,14 +57,33 @@ function readStoredBranding(): Branding | null | undefined {
 
 function writeStoredBranding(branding: Branding | null): void {
   try {
+    const key = getBrandingStorageKey()
     if (!branding) {
-      localStorage.removeItem(BRANDING_STORAGE_KEY)
+      localStorage.removeItem(key)
       return
     }
-    localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify(branding))
+    localStorage.setItem(key, JSON.stringify(branding))
   } catch {
     // Ignore storage availability and quota failures.
   }
+}
+
+export function clearBrandingCache(): void {
+  cachedBranding = undefined
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(BRANDING_STORAGE_KEY_PREFIX)) {
+        localStorage.removeItem(key)
+      }
+    }
+  } catch {
+    // Ignore storage availability failures.
+  }
+}
+
+export function resetBrandingState(): void {
+  cachedBranding = undefined
+  brandingInFlight = null
 }
 
 function resolveWithStickyBranding(next: Branding | null): Branding | null {

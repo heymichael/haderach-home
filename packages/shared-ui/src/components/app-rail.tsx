@@ -156,6 +156,9 @@ export function AppRail({
   const lockupSrc = branding?.lockupSvg
     ? `data:image/svg+xml;utf8,${encodeURIComponent(branding.lockupSvg)}`
     : null
+  const hasSeparateLockup = Boolean(
+    branding?.lockupSvg && branding.lockupSvg !== branding.logoSvg,
+  )
 
   return (
     <nav
@@ -167,7 +170,7 @@ export function AppRail({
     >
       {/* Logo + toggle */}
       <div className="flex h-14 shrink-0 items-center">
-        {expanded && lockupMode === "swap" && lockupSrc ? (
+        {expanded && lockupMode === "swap" && lockupSrc && hasSeparateLockup ? (
           /* Lockup spans beyond the logo column; h-[28px] keeps the "A" the
              same pixel height as the h-9 standalone logo (282/370 ≈ 282/290). */
           <a href="/" className="flex shrink-0 items-center pl-8">

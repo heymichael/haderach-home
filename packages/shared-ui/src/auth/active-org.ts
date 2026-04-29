@@ -18,6 +18,7 @@
  */
 
 import type { UserDoc, UserOrgMembership } from './user-doc.ts'
+import { clearBrandingCache, resetBrandingState } from '../lib/branding.ts'
 
 const STORAGE_KEY = 'haderach.activeOrgSlug'
 
@@ -55,6 +56,7 @@ export function setStoredActiveOrgSlug(slug: string): void {
   } catch {
     /* storage unavailable */
   }
+  resetBrandingState()
 }
 
 export function clearStoredActiveOrgSlug(): void {
@@ -63,6 +65,7 @@ export function clearStoredActiveOrgSlug(): void {
   } catch {
     /* storage unavailable */
   }
+  clearBrandingCache()
 }
 
 /**

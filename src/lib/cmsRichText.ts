@@ -11,6 +11,18 @@ export type RichTextNode = {
   attrs?: Record<string, unknown>
 }
 
+export type ResolvedImageField = {
+  asset_id: string
+  resolved: boolean
+  url?: string
+  title?: string
+  alt_text?: string
+  width?: number
+  height?: number
+  approved_public?: boolean
+  error?: string
+}
+
 export type RichTextValue = RichTextNode | string | null | undefined
 
 function escapeHtml(value: string): string {
@@ -126,6 +138,26 @@ function renderNode(node: RichTextNode): string {
       return "<hr />"
     case "hardBreak":
       return "<br />"
+    case "image": {
+      const src =
+        typeof node.attrs?.src === "string" ? sanitizeHref(node.attrs.src) : ""
+      if (!src) return ""
+      const alt =
+        typeof node.attrs?.alt === "string" ? escapeHtml(node.attrs.alt) : ""
+      const title =
+        typeof node.attrs?.title === "string"
+          ? ` title="${escapeHtml(node.attrs.title)}"`
+          : ""
+      const width =
+        typeof node.attrs?.width === "number"
+          ? ` width="${node.attrs.width}"`
+          : ""
+      const height =
+        typeof node.attrs?.height === "number"
+          ? ` height="${node.attrs.height}"`
+          : ""
+      return `<img src="${escapeHtml(src)}" alt="${alt}"${title}${width}${height} />`
+    }
     default:
       return renderChildren(node)
   }
@@ -147,4 +179,21 @@ export function hasRenderableContent(value: RichTextValue): boolean {
   if (value == null) return false
   if (typeof value === "string") return value.trim().length > 0
   return renderContentToHtml(value).replace(/<[^>]+>/g, "").trim().length > 0
+}
+
+export function isResolvedImageField(value: unknown): value is ResolvedImageField {
+  if (value == null || typeof value !== "object") return false
+  const obj = value as Record<string, unknown>
+  return typeof obj.asset_id === "string" && typeof obj.resolved === "boolean"
+}
+
+export function getImageFieldUrl(field: ResolvedImageField | unknown): string | null {
+  if (!isResolvedImageField(field)) return null
+  if (!field.resolved || !field.url) return null
+  return field.url
+}
+
+export function getImageFieldAlt(field: ResolvedImageField | unknown): string {
+  if (!isResolvedImageField(field)) return ""
+  return field.alt_text ?? field.title ?? ""
 }
